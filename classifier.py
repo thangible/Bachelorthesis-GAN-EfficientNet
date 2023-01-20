@@ -39,11 +39,18 @@ def main(
     parser = config_parser()
     args = parser.parse_args()
 
+    #LOADING DATA
+    one_hot_transform = transforms.Compose([
+        lambda x: torch.as_tensor(x),
+        lambda x: F.one_hot(x.to(torch.int64), num_classes)
+    ])
+    
     
     full_dataset = ClassificationDataset(
         unwanted_classes= args.unwanted_classes,
         unwanted_pics= args.unwanted_pics,
-        npz_path= './data/light_compressed.npz'
+        npz_path= './data/light_compressed.npz',
+        
     )
     
     train_size = int(0.8 * len(full_dataset))

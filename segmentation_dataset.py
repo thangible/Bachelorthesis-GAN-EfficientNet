@@ -1,6 +1,9 @@
 from torch.utils.data import Dataset
+from torchvision import transforms
 from pathlib import PurePath
+import torch.nn.functional as Functional
 import numpy as np
+import torch
 import cv2
 import pandas as pd
 from sklearn import preprocessing
@@ -13,7 +16,7 @@ class ClassificationDataset(Dataset):
         unwanted_classes: list,
         npz_path: PurePath = None,
         image_path: PurePath = None,
-        label_path: PurePath = None,
+        label_path: PurePath = None
         ):
 
         self._image_path = image_path
@@ -21,6 +24,7 @@ class ClassificationDataset(Dataset):
         self._npz_path = npz_path
         self._unwanted_classes = unwanted_classes
         self._unwanted_pics = unwanted_pics
+        self._num_classes = len(self)
         
         
         #LOADER
@@ -75,3 +79,9 @@ class ClassificationDataset(Dataset):
           image_name = self._image_names[index]
           path = PurePath(self._image_path, image_name + '.jpg')
         return cv2.imread(path)
+    
+    def _one_hot_transform(self):
+        one_hot_transform = transforms.Compose([
+        lambda x: torch.as_tensor(x),
+        lambda x: Functional.one_hot(x.to(torch.int64), self._num_classes)
+    ])
