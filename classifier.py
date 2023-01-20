@@ -2,7 +2,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import transforms 
-from ParserConfig import config_parser
+from parser_config import config_parser
+from segmentation_dataset import ClassificationDataset
 from torchmetrics.classification import MulticlassAccuracy, MulticlassF1Score, MulticlassPrecision, MulticlassRecall
 
 # def valid_classifier(classifier, cat_count, loader_test, tb_writer, device, current_epoch):
@@ -126,21 +127,28 @@ def main(
     
     #CONFIG PARSER
     parser = config_parser()
-    
-    
+    args = parser.parse_args()
 
+    
+    full_dataset = ClassificationDataset(
+        unwanted_classes= args.unwanted_classes,
+        unwanted_pics= args.unwanted_pics,
+        npz_path= './data/light_compressed.npz'
+    )
+    
+    
+    print(len(full_dataset))
+    
+    train_size = int(0.8 * len(full_dataset))
+    valid_size = len(full_dataset) - train_size
+    train_data, validation_data = torch.utils.data.random_split(
+        full_dataset, [train_size, valid_size])
+    
     # define device
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-    transform_resize = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Resize([img_size, img_size])
-    ])
-    # target transform
-    target_transform = transforms.Compose([
-        lambda x: torch.as_tensor(x),
-        lambda x: F.one_hot(x.to(torch.int64), cat_count)
-    ])
+    
+    
+    
 
 
 
