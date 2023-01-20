@@ -31,8 +31,7 @@ class ClassificationDataset(Dataset):
         else:
             self._image_names = self._get_image_names()
             self._labels = self._get_labels()
-        
-        image_path.glob()
+
         
         
     def __getitem__(self, index: int) -> tuple:
@@ -44,10 +43,10 @@ class ClassificationDataset(Dataset):
         return img, label
     
     def __len__(self) -> int:
-        return self.labels.shape[0]
+        return self._labels.shape[0]
     
     
-    def _get_names_and_labels(self) -> tuple(pd.Series, pd.Series):
+    def _get_names_and_labels(self):
         all_data = pd.read_csv(self._label_path,index_col=False)
         data = all_data[['tp','name','file']].copy()
         data.reset_index(drop=True, inplace=True)
@@ -69,8 +68,10 @@ class ClassificationDataset(Dataset):
         return names, labels
         
     def _get_image(self, index):
-        image_name = self._images[index]
-        path = PurePath(self._image_path, image_name + '.jpg')
+        
+        if self._npz_path:
+          return self._images[index]
+        else:
+          image_name = self._image_names[index]
+          path = PurePath(self._image_path, image_name + '.jpg')
         return cv2.imread(path)
-        
-        
