@@ -4,7 +4,7 @@ from pathlib import PurePath
 import torch.nn.functional as Functional
 import numpy as np
 import torch
-import cv2
+from torchvision.io import read_image
 import pandas as pd
 from sklearn import preprocessing
 
@@ -12,26 +12,24 @@ from sklearn import preprocessing
 class ClassificationDataset(Dataset):
     def __init__(
         self,
-        unwanted_pics: list,
-        unwanted_classes: list,
+        unwanted_pics: list = [],
+        unwanted_classes: list = [],
         npz_path: PurePath = None,
         image_path: PurePath = None,
         label_path: PurePath = None,
-        resize: int = None,
+        size: int = None,
         one_hot: bool = True,
         augmentation = None,
         ):
-
+        
         self._image_path = image_path
         self._label_path = label_path
         self._npz_path = npz_path
         self._unwanted_classes = unwanted_classes
         self._unwanted_pics = unwanted_pics
-        self._num_classes = len(self)
-        self._resize = resize
+        self._size = size
         self._augmentation = augmentation
         self._one_hot_transform = one_hot
-        
         
         #LOADER
         if self._npz_path:
@@ -40,6 +38,12 @@ class ClassificationDataset(Dataset):
                 self._labels = data['y']
         else:
             self._image_names, self._labels, self.categories = self._get_names_and_labels_categories()
+
+        self._num_classes = len(self)
+        
+        
+        
+        
 
         
         
@@ -80,11 +84,11 @@ class ClassificationDataset(Dataset):
             image =  self._images[index]
         else:
           image_name = self._image_names[index]
-          path = PurePath(self._image_path, image_name + '.jpg')
-          image = cv2.imread(path)
+          path = PurePath(self._image_path, image_name)
+          image = read_image(str(path))
         #RESIZE
-        if self._resize:
-            image = self._resize(image, self._resize)
+        if self._size != image.shape[0]:
+            image = self._resize(image)
         #AUGMENTATION
         if self._augmentation:
             image = self._augmentation(image)
@@ -106,5 +110,5 @@ class ClassificationDataset(Dataset):
         
         
     def _resize(self, image):
-        transform_resize = transforms.Compose([transforms.ToTensor(), transforms.Resize([self._resize, self._resize])])
-        return transform_resize(image)
+        transform_resize = transforms.Resize([self._size, self._size])
+        return transform_resize(image)   
