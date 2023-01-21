@@ -16,7 +16,10 @@ class ClassificationDataset(Dataset):
         unwanted_classes: list,
         npz_path: PurePath = None,
         image_path: PurePath = None,
-        label_path: PurePath = None
+        label_path: PurePath = None,
+        resize: int = None,
+        one_hot: bool = True,
+        augmentation = None,
         ):
 
         self._image_path = image_path
@@ -25,6 +28,9 @@ class ClassificationDataset(Dataset):
         self._unwanted_classes = unwanted_classes
         self._unwanted_pics = unwanted_pics
         self._num_classes = len(self)
+        self._resize = resize
+        self._augmentation = augmentation
+        self._one_hot_transform = one_hot
         
         
         #LOADER
@@ -33,24 +39,21 @@ class ClassificationDataset(Dataset):
                 self._images = data['x']
                 self._labels = data['y']
         else:
-            self._image_names = self._get_image_names()
-            self._labels = self._get_labels()
+            self._image_names, self._labels, self.categories = self._get_names_and_labels_categories()
 
         
         
     def __getitem__(self, index: int) -> tuple:
         ##LOADER
         img = self._get_image(index)
-        label = self._labels[index]
-            
-        ##AUGMENTATION
+        label = self._get_label(index)
         return img, label
     
     def __len__(self) -> int:
         return self._labels.shape[0]
     
     
-    def _get_names_and_labels(self):
+    def _get_names_and_labels_categories(self):
         all_data = pd.read_csv(self._label_path,index_col=False)
         data = all_data[['tp','name','file']].copy()
         data.reset_index(drop=True, inplace=True)
@@ -69,19 +72,39 @@ class ClassificationDataset(Dataset):
         ##
         names = data.file
         labels = data.label
-        return names, labels
+        categories = data.name
+        return names, labels, categories
         
     def _get_image(self, index):
-        
         if self._npz_path:
-          return self._images[index]
+            image =  self._images[index]
         else:
           image_name = self._image_names[index]
           path = PurePath(self._image_path, image_name + '.jpg')
-        return cv2.imread(path)
-    
-    def _one_hot_transform(self):
+          image = cv2.imread(path)
+        #RESIZE
+        if self._resize:
+            image = self._resize(image, self._resize)
+        #AUGMENTATION
+        if self._augmentation:
+            image = self._augmentation(image)
+            
+        return image
+        
+    def _get_label(self, index):
+        label = self._labels[index]
+        if self._one_hot:
+            label = self._one_hot_transform(label)
+        return label
+        
+    def _one_hot_transform(self, label):
         one_hot_transform = transforms.Compose([
         lambda x: torch.as_tensor(x),
         lambda x: Functional.one_hot(x.to(torch.int64), self._num_classes)
     ])
+        return one_hot_transform(label)
+        
+        
+    def _resize(self, image):
+        transform_resize = transforms.Compose([transforms.ToTensor(), transforms.Resize([self._resize, self._resize])])
+        return transform_resize(image)

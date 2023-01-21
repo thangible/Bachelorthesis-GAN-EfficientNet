@@ -8,6 +8,7 @@ from torchmetrics.classification import MulticlassAccuracy, MulticlassF1Score, M
 from torchvision import transforms 
 from torch.utils.data import DataLoader
 from parser_config import config_parser
+from augmentation import  aug_transfrom
 from tqdm import tqdm #te quiero demasio. taqadum
 from segmentation_dataset import ClassificationDataset
 from pathlib import Path
@@ -40,17 +41,15 @@ def main(
     args = parser.parse_args()
 
     #LOADING DATA
-    one_hot_transform = transforms.Compose([
-        lambda x: torch.as_tensor(x),
-        lambda x: F.one_hot(x.to(torch.int64), num_classes)
-    ])
+    
     
     
     full_dataset = ClassificationDataset(
         unwanted_classes= args.unwanted_classes,
         unwanted_pics= args.unwanted_pics,
         npz_path= './data/light_compressed.npz',
-        
+        one_hot = True,
+        augmentation= aug_transfrom
     )
     
     train_size = int(0.8 * len(full_dataset))
@@ -101,8 +100,6 @@ def main(
 
         # save C
     torch.save(MODEL.state_dict(), Path(log_path, "classifier.pth"))
-    
-    
     
     
 def valid_classifier(model, num_classes, loader_test, device, current_epoch):

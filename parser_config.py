@@ -8,7 +8,7 @@ def config_parser():
                         help='config file path')
     parser.add_argument("--input_file", type=str,
                         default='./light_compressed.npz', help='input file')   
-    parser.add_argument("--epochs", type=int, default=100,
+    parser.add_argument("--epochs", type=inxt, default=100,
                         help='number of epochs')
     parser.add_argument("--save_interval", type=int, default=5,
                         help='interval between save')
