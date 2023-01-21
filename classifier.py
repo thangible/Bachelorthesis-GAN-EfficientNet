@@ -20,8 +20,9 @@ wandb.init(project="classifier-efficientnet")
 def main(
     root_path: str = ('.'),
     log_path: str = "./data/classification/logs",
-    image_dir: str = "./data/imgs",
-    label_pat: str = "./data/labels", 
+    npz_path: str = None,
+    image_path: str = "./data/imgs",
+    label_path: str = "./data/labels", 
     batch_size: int = 32,
     epochs: int = 100,
     num_workers: int = 8,
@@ -46,7 +47,9 @@ def main(
     full_dataset = ClassificationDataset(
         unwanted_classes= args.unwanted_classes,
         unwanted_pics= args.unwanted_pics,
-        npz_path= './data/light_compressed.npz',
+        npz_path= args.npz_path,
+        label_path= args.label_path,
+        image_path= args.image_path,
         one_hot = True,
         augmentation= aug_transfrom
     )
@@ -101,8 +104,9 @@ def main(
             current_epoch=e
         )
 
-        # save C
-    torch.save(MODEL.state_dict(), Path(log_path, "classifier.pth"))
+    save_path = Path(log_path, "classifier.pth")
+    Path(log_path).mkdir(parents=True, exist_ok=True)
+    torch.save(MODEL.state_dict(), save_path)
     
     
 def valid_classifier(model, num_classes, loader_test, device, current_epoch):
@@ -125,17 +129,14 @@ def valid_classifier(model, num_classes, loader_test, device, current_epoch):
 
     # testing loop
     for img, label in loader_test:
+        #load
         img = img.to(device)
-        # one-hot encode class labels
-        label = torch.argmax(label, dim=1)
         label = label.to(device)
-
         # predict
-        predicted = model(img)
+        predicted = model(img.float())
 
         # update metrics
         predicted = predicted.to(device)
-        label = label.to(device)
         accuracy.update(preds=predicted, target=label)
         f1score.update(preds=predicted, target=label)
         precision.update(preds=predicted, target=label)
