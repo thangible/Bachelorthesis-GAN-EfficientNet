@@ -79,7 +79,7 @@ def main(
     global_step = 0
     LOSSES = []
     
-    for e in range(epochs):
+    for e in range(args.epochs):
         for img_train, label_train in tqdm(train_dataloader, total=len(train_dataloader)):
             img_train = img_train.to(device)
             label_train = label_train.to(device)
