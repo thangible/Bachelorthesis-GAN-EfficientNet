@@ -45,14 +45,10 @@ def main(
     
     
     full_dataset = ClassificationDataset(
-        unwanted_classes= args.unwanted_classes,
-        unwanted_pics= args.unwanted_pics,
-        npz_path= args.npz_path,
-        label_path= args.label_path,
-        image_path= args.image_path,
         one_hot = True,
         augmentation= aug_transfrom
     )
+    
     num_classes = full_dataset._get_num_classes()
     train_size = int(0.8 * len(full_dataset))
     valid_size = len(full_dataset) - train_size

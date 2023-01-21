@@ -1,3 +1,0 @@
-image_path = 'data/ISEAD/segmentation_masks/JPEGImages'
-label_path = 'data/ISEAD/segmentation_masks/JPEGImages/manual_annotated_data.csv'
-
