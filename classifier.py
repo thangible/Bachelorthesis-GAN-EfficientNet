@@ -20,9 +20,9 @@ wandb.init(project="classifier-efficientnet")
 def main(
     root_path: str = ('.'),
     log_path: str = "./data/classification/logs",
-    npz_path: str = None,
-    image_path: str = 'data/ISEAD/segmentation_masks/JPEGImages',
-    label_path: str = 'data/ISEAD/segmentation_masks/JPEGImages/manual_annotated_data.csv', 
+    npz_path: str = 'classification_dataset.npz',
+    image_path: str =  None,
+    label_path: str = None,
     batch_size: int = 32,
     epochs: int = 100,
     num_workers: int = 8,
@@ -35,13 +35,8 @@ def main(
     "epochs": epochs,
     "batch_size": batch_size
     }
-    
-    #CONFIG PARSER
-    parser = config_parser()
-    args = parser.parse_args()
 
     #LOADING DATA
-    
     
     
     full_dataset = ClassificationDataset(
@@ -75,7 +70,7 @@ def main(
     global_step = 0
     LOSSES = []
     
-    for e in range(args.epochs):
+    for e in range(epochs):
         for img_train, label_train in tqdm(train_dataloader, total=len(train_dataloader)):
             img_train = img_train.to(device)
             label_train = label_train.to(device)
@@ -165,7 +160,12 @@ def valid_classifier(model, num_classes, loader_test, device, current_epoch):
     wandb.log({"recalltop 3": avg_recall_top3})
     
 if __name__ == "__main__":
-    main()
+    #CONFIG PARSER
+    parser = config_parser()
+    args = parser.parse_args()
+    
+    
+    main(epochs = args.epochs)
 
 
 
