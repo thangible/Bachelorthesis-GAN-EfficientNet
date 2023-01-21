@@ -1,6 +1,9 @@
 import albumentations as A
 
-def aug_transfrom(flip = 0.5):
+def aug_transfrom(**kwargs):
+    for key, value in kwargs.items():
+        print(key,value)
+        
     trans = A.Compose([
             A.VerticalFlip(p=0.5),
             A.RandomScale(scale_limit=0.2, interpolation=1,
