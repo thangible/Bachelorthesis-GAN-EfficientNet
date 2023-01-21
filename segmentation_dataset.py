@@ -41,7 +41,7 @@ class ClassificationDataset(Dataset):
         else:
             self._image_names, self._labels, self._categories = self._get_names_and_labels_categories()
 
-        self._num_classes = len(self)
+        self._num_classes = self._get_num_classes()
         
         
         
@@ -71,19 +71,19 @@ class ClassificationDataset(Dataset):
         
         ##GET LABELS FROM CATEGOGRIES
         le = preprocessing.LabelEncoder()
-        label = data['name']
-        le.fit(label)
+        name = data['name']
+        le.fit(name)
         le_name_mapping = dict(zip(le.classes_, le.transform(le.classes_)))
-        data['label'] = le.transform(label)
+        data['label'] = le.transform(name)
         data = data.sort_values(by=['file'][:-4],ascending=False)
         
         #ASSIGNING
-        names = data.file
-        labels = data.label
-        categories = data.name
-        return names, labels, categories
+        image_names = data.file.array
+        labels = data.label.array
+        categories = data.name.array
+        return image_names, labels, categories
         
-    def _get_image(self, index):
+    def _get_image(self, index: int):
         if self._npz_path:
             image =  self._images[index]
         else:
@@ -99,13 +99,13 @@ class ClassificationDataset(Dataset):
             
         return image
         
-    def _get_label(self, index):
+    def _get_label(self, index: int):
         label = self._labels[index]
         if self._one_hot:
             label = self._one_hot_transform(label)
         return label
     
-    def _get_category(self, index):
+    def _get_category(self, index: int):
         category = self._categories[index]
         return category
         
@@ -121,11 +121,14 @@ class ClassificationDataset(Dataset):
         transform_resize = transforms.Resize([self._size, self._size])
         return transform_resize(image)   
     
-    
-    def _show_pic(self, index):
+    def _show_pic(self, index: int):
         image = self._get_image(index)
         label = self._labels[index]
         category = self._get_category(index)
         fig = plt.figure()
         plt.imshow(image.permute(1, 2, 0))
         plt.title('Category: {}, Label: {}'.format(label, category))
+    
+    def _get_num_classes(self):
+        return len(np.unique(self._labels))
+    

@@ -26,8 +26,7 @@ def main(
     epochs: int = 100,
     num_workers: int = 8,
     img_size = 256,
-    lr: float = 1e-4,
-    num_classes: int = 156):
+    lr: float = 1e-4):
     
     #CONFIG WANDB
     wandb.config = {
@@ -51,16 +50,20 @@ def main(
         one_hot = True,
         augmentation= aug_transfrom
     )
-    
+    num_classes = full_dataset._get_num_classes()
     train_size = int(0.8 * len(full_dataset))
     valid_size = len(full_dataset) - train_size
-    train_data, validation_data = torch.utils.data.random_split(
-        full_dataset, [train_size, valid_size])
+    train_data, validation_data = torch.utils.data.random_split(full_dataset, [train_size, valid_size])
     
-    train_dataloader = DataLoader(
-        train_data, batch_size=batch_size, shuffle=True, num_workers=num_workers)
-    validation_dataloader = DataLoader(
-        validation_data, batch_size=batch_size, shuffle=True, num_workers=num_workers)
+    train_dataloader = DataLoader(train_data,
+                                  batch_size=batch_size, 
+                                  shuffle=True,
+                                  num_workers=num_workers)
+    
+    validation_dataloader = DataLoader(validation_data, 
+                                       batch_size=batch_size, 
+                                       shuffle=True,
+                                       num_workers=num_workers)
     
     # define device
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -78,9 +81,9 @@ def main(
             img_train = img_train.to(device)
             label_train = label_train.to(device)
             # predict
-            predicted = MODEL(img_train)
+            predicted = MODEL(img_train.float())
             # loss
-            LOSS = criterion_classification(predicted, label_train.float())
+            LOSS = criterion_classification(predicted, label_train)
             # backward
             LOSS.backward()
             # optimize
