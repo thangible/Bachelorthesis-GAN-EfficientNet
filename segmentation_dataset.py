@@ -6,6 +6,7 @@ import numpy as np
 import torch
 from torchvision.io import read_image
 import pandas as pd
+import matplotlib.pyplot as plt
 from sklearn import preprocessing
 
 
@@ -29,15 +30,16 @@ class ClassificationDataset(Dataset):
         self._unwanted_pics = unwanted_pics
         self._size = size
         self._augmentation = augmentation
-        self._one_hot_transform = one_hot
+        self._one_hot = one_hot
         
         #LOADER
         if self._npz_path:
             with np.load(self._npz_path, mmap_mode='r') as data:
                 self._images = data['x']
                 self._labels = data['y']
+                self._categories = data['z']
         else:
-            self._image_names, self._labels, self.categories = self._get_names_and_labels_categories()
+            self._image_names, self._labels, self._categories = self._get_names_and_labels_categories()
 
         self._num_classes = len(self)
         
@@ -58,6 +60,7 @@ class ClassificationDataset(Dataset):
     
     
     def _get_names_and_labels_categories(self):
+        #PREPROCESSING
         all_data = pd.read_csv(self._label_path,index_col=False)
         data = all_data[['tp','name','file']].copy()
         data.reset_index(drop=True, inplace=True)
@@ -65,7 +68,8 @@ class ClassificationDataset(Dataset):
         no_labelled_pics = self._unwanted_pics
         data = data[~data['name'].isin(unwanted_classes)]
         data = data[~data.file.isin(no_labelled_pics)]
-        ## get labels
+        
+        ##GET LABELS FROM CATEGOGRIES
         le = preprocessing.LabelEncoder()
         label = data['name']
         le.fit(label)
@@ -73,7 +77,7 @@ class ClassificationDataset(Dataset):
         data['label'] = le.transform(label)
         data = data.sort_values(by=['file'][:-4],ascending=False)
         
-        ##
+        #ASSIGNING
         names = data.file
         labels = data.label
         categories = data.name
@@ -100,6 +104,10 @@ class ClassificationDataset(Dataset):
         if self._one_hot:
             label = self._one_hot_transform(label)
         return label
+    
+    def _get_category(self, index):
+        category = self._categories[index]
+        return category
         
     def _one_hot_transform(self, label):
         one_hot_transform = transforms.Compose([
@@ -112,3 +120,12 @@ class ClassificationDataset(Dataset):
     def _resize(self, image):
         transform_resize = transforms.Resize([self._size, self._size])
         return transform_resize(image)   
+    
+    
+    def _show_pic(self, index):
+        image = self._get_image(index)
+        label = self._labels[index]
+        category = self._get_category(index)
+        fig = plt.figure()
+        plt.imshow(image.permute(1, 2, 0))
+        plt.title('Category: {}, Label: {}'.format(label, category))
