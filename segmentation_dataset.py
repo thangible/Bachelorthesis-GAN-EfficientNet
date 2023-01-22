@@ -101,7 +101,7 @@ class ClassificationDataset(Dataset):
             image = self._resize(image)
         #AUGMENTATION
         if self._augmentation:
-            image = self._augmentation()(image)
+            image = self._augmentation(image = np.array(image))
             
         return image
         
