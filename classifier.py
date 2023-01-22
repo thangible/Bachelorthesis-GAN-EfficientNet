@@ -41,7 +41,7 @@ def main(
     
     full_dataset = ClassificationDataset(
         one_hot = True,
-        augmentation= aug_transfrom,
+        augmentation= None,
         npz_path= npz_path, 
         size = img_size
     )
