@@ -123,10 +123,9 @@ class ClassificationDataset(Dataset):
         
         
     def _resize(self, image):
-        transform_resize = transforms.Resize([self._size, self._size])
-        image = transform_resize(image)   
         if torch.is_tensor(image):
             image = transforms.ToTensor(image)
+        image = transforms.Resize()([self._size, self._size])(image)   
         return image
     
     def _show_pic(self, index: int):
