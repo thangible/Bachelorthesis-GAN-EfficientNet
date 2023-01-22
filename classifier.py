@@ -41,7 +41,8 @@ def main(
     
     full_dataset = ClassificationDataset(
         one_hot = True,
-        augmentation= aug_transfrom
+        augmentation= aug_transfrom,
+        npz_path= npz_path
     )
     
     num_classes = full_dataset._get_num_classes()
