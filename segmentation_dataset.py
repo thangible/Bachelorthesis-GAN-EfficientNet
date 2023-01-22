@@ -19,7 +19,7 @@ class ClassificationDataset(Dataset):
         image_path: PurePath = None,
         label_path: PurePath = None,
         size: int = None,
-        one_hot: bool = True,
+        one_hot: bool = False,
         augmentation = None,
         ):
         unwanted_classes = ['Eismöwe', 'Schmarotzer/Spatelraubmöwe', 'Singschwan', 'Grünschenkel', 'Zwergtaucher', 'Zwergwal', 'Rotmilan', 'unbestimmte Eule','Krabbentaucher', 'Falkenraubmöwe', 'Bruchwasserläufer', 'Sumpfohreule','unbestimmte Schwimmente', 'unbestimmter Greifvogel', 'Blässgans','unbestimmter Hai', 'Rabenkrähe', 'Mäusebussard', 'Küstenseeschwalbe','Fischadler', 'Großer Brachvogel', 'Großer Tümmler', 'Messstation','Messmast', 'Wasserlinie mit Seegras', 'Ringeltaube', 'Reiherente','Waldohr/Sumpfohreule', 'Fähre']

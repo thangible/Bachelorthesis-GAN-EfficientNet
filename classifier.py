@@ -14,10 +14,10 @@ from segmentation_dataset import ClassificationDataset
 from pathlib import Path
 
 
-wandb.init(project="classifier-efficientnet")
 
 
 def main(
+    run_name: str,
     root_path: str = ('.'),
     log_path: str = "./data/classification/logs",
     npz_path: str = 'classification_dataset.npz',
@@ -27,24 +27,17 @@ def main(
     epochs: int = 100,
     num_workers: int = 8,
     img_size = 256,
-    lr: float = 1e-4):
-    
-    #CONFIG WANDB
-    wandb.config = {
-    "learning_rate": lr,
-    "epochs": epochs,
-    "batch_size": batch_size
-    }
+    lr: float = 1e-4,
+    is_resume_training: bool = False):
 
+
+    trained_epochs = 0
     #LOADING DATA
-    
-    
     full_dataset = ClassificationDataset(
-        one_hot = True,
-        augmentation= None,
-        npz_path= npz_path, 
-        size = img_size
-    )
+        one_hot = False,
+        augmentation= aug_transfrom,
+        npz_path= npz_path,
+        size = img_size)
     
     num_classes = full_dataset._get_num_classes()
     train_size = int(0.8 * len(full_dataset))
@@ -64,15 +57,36 @@ def main(
     # define device
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
-    MODEL = timm.create_model("efficientnet_b0", pretrained=True,
-                          num_classes=num_classes, in_chans=3)
+    #CONFIG LOGS FOR SAVING LATER
+    SAVE_PATH = Path(log_path, "classifier.pth")
+    Path(log_path).mkdir(parents=True, exist_ok=True)
+    
+    
+    #MODEL
+    MODEL = timm.create_model("efficientnet_b0", pretrained=True, num_classes= num_classes, in_chans= 3)
     MODEL.to(device)
     OPTIM = optim.Adam(MODEL.parameters(), lr=lr)
     criterion_classification = nn.CrossEntropyLoss()
-    global_step = 0
     LOSSES = []
     
-    for e in range(epochs):
+    # #CONFIG IF RESUMING
+    # if wandb.run.resumed:
+    #     MODEL = keras.models.load_model(wandb.restore("model-best.h5").name)
+    # if is_resume_training:
+    #     checkpoint = torch.load(SAVE_PATH)
+    #     MODEL.load_state_dict(checkpoint['model_state_dict'])
+    #     OPTIM.load_state_dict(checkpoint['optimizer_state_dict'])
+    #     trained_epochs = checkpoint['trained_epochs']
+    #     LOSSES = checkpoint['loss']
+        
+    ##CONFIG WANDB
+    wandb.config = {
+    "learning_rate": lr,
+    "batch_size": batch_size,
+    "run_name": run_name
+    }
+    
+    for e in range(trained_epochs, epochs + trained_epochs):
         for img_train, label_train in tqdm(train_dataloader, total=len(train_dataloader)):
             img_train = img_train.to(device)
             label_train = label_train.to(device)
@@ -97,28 +111,26 @@ def main(
             current_epoch=e
         )
 
-    save_path = Path(log_path, "classifier.pth")
-    Path(log_path).mkdir(parents=True, exist_ok=True)
-    torch.save(MODEL.state_dict(), save_path)
+    # torch.save(MODEL.state_dict(), SAVE_PATH)
+    torch.save({
+            'trained_epochs': trained_epochs + epochs,
+            'model_state_dict': MODEL.state_dict(),
+            'optimizer_state_dict': OPTIM.state_dict(),
+            'loss': LOSS,
+            'name': run_name
+            }, SAVE_PATH)
     
     
 def valid_classifier(model, num_classes, loader_test, device, current_epoch):
-    accuracy = MulticlassAccuracy(
-        num_classes=num_classes, top_k=1).to(device)
-    f1score = MulticlassF1Score(
-        num_classes=num_classes).to(device)
-    precision = MulticlassPrecision(
-        num_classes=num_classes).to(device)
+    accuracy = MulticlassAccuracy(num_classes=num_classes, top_k=1).to(device)
+    f1score = MulticlassF1Score(num_classes=num_classes).to(device)
+    precision = MulticlassPrecision(num_classes=num_classes).to(device)
     recall = MulticlassRecall(num_classes=num_classes).to(device)
 
-    accuracy_top3 = MulticlassAccuracy(
-        num_classes=num_classes, top_k=3).to(device)
-    f1score_top3 = MulticlassF1Score(
-        num_classes=num_classes, top_k=3).to(device)
-    precision_top3 = MulticlassPrecision(
-        num_classes=num_classes, top_k=3).to(device)
-    recall_top3 = MulticlassRecall(
-        num_classes=num_classes, top_k=3).to(device)
+    accuracy_top3 = MulticlassAccuracy(num_classes=num_classes, top_k=3).to(device)
+    f1score_top3 = MulticlassF1Score(num_classes=num_classes, top_k=3).to(device)
+    precision_top3 = MulticlassPrecision(num_classes=num_classes, top_k=3).to(device)
+    recall_top3 = MulticlassRecall(num_classes=num_classes, top_k=3).to(device)
 
     # testing loop
     for img, label in loader_test:
@@ -166,8 +178,11 @@ if __name__ == "__main__":
     parser = config_parser()
     args = parser.parse_args()
     
+    wandb.init(project="classifier-efficientnet")
+    if args.run_name:
+        wandb.run.name = args.run_name
     
-    main(epochs = args.epochs)
+    main(epochs = args.epochs, run_name = args.run_name)
 
 
 
