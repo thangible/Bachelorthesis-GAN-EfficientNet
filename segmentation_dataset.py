@@ -38,7 +38,7 @@ class ClassificationDataset(Dataset):
         
         #LOADER
         if self._npz_path:
-            with np.load(self._npz_path, mmap_mode='r') as data:
+            with np.load(self._npz_path, mmap_mode='r', allow_pickle= True) as data:
                 self._images = data['x']
                 self._labels = data['y']
                 self._categories = data['z']
