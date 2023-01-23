@@ -91,6 +91,9 @@ class ClassificationDataset(Dataset):
     def _get_image(self, index: int):
         if self._npz_path:
             image =  self._images[index]
+            #AUGMENTATION
+            if self._augmentation:
+                image = self._augmentation(image = image)
             image = transforms.ToTensor()(image)
         else:
           image_name = self._image_names[index]
@@ -99,9 +102,7 @@ class ClassificationDataset(Dataset):
         #RESIZE
         if self._size != image.shape[0]:
             image = self._resize(image)
-        #AUGMENTATION
-        if self._augmentation:
-            image = self._augmentation(image = np.array(image))
+        
             
         return image
         
