@@ -31,14 +31,14 @@ def aug_transform(
                                                         translate_px=None,
                                                         rotate=None,
                                                         shear=None, 
-                                                        nterpolation=1, 
+                                                        interpolation=1, 
                                                         mask_interpolation=0,
                                                         cval=0, 
                                                         cval_mask=0, 
                                                         mode=0, 
                                                         fit_output=False, 
                                                         keep_ratio=True,
-                                                        always_apply=False, p=0.5) 
+                                                        always_apply=True, p=1) 
     # trans =  A.augmentations.geometric.resize.RandomScale (scale_limit=0.1, interpolation=1, always_apply=False, p=0.5)
     return trans
 
