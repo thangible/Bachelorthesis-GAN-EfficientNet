@@ -93,7 +93,7 @@ class ClassificationDataset(Dataset):
             image =  self._images[index]
             #AUGMENTATION
             if self._augmentation:
-                image = self._augmentation(image = image.astype(np.float))['image']
+                image = self._augmentation(image = image.astype(np.float32))['image']
             image = transforms.ToTensor()(image)
         else:
           image_name = self._image_names[index]
