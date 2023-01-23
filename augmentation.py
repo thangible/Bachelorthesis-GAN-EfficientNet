@@ -27,10 +27,7 @@ def aug_transform(
     #         A.HueSaturationValue(p=0.1)
     #     ])
     
-    trans =  A.Compose(A.augmentations.geometric.resize.RandomScale (scale_limit=0.1, 
-                                                                     interpolation=1, 
-                                                                     always_apply=False,
-                                                                     p=0.5))
+    trans =  A.augmentations.geometric.resize.RandomScale (scale_limit=0.1, interpolation=1, always_apply=False, p=0.5)
     return trans
 
 
