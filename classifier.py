@@ -9,7 +9,7 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 from parser_config import config_parser
 import albumentations as A
-# from augmentation import  aug_transform
+from augmentation import  aug_transform
 from tqdm import tqdm #te quiero demasio. taqadum
 from segmentation_dataset import ClassificationDataset
 from pathlib import Path
@@ -36,12 +36,7 @@ def main(
     #LOADING DATA
     full_dataset = ClassificationDataset(
         one_hot = False,
-        augmentation= A.augmentations.geometric.resize.RandomScale (height = img_size,
-                                                                    width = img_size,
-                                                                    scale_limit=0.1,
-                                                                    interpolation=1,
-                                                                    always_apply=False,
-                                                                    p=0.5),
+        augmentation= aug_transform(),
         npz_path= npz_path,
         size = img_size)
     
