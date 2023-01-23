@@ -1,6 +1,6 @@
 import albumentations as A
 
-def aug_transfrom(
+def aug_transform(
     scale = 0.5
     # hsv_h = 0.0,
     # hsv_s = 0.0,
