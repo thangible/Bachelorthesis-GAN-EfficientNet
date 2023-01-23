@@ -27,7 +27,7 @@ def main(
     batch_size: int = 32,
     epochs: int = 100,
     num_workers: int = 8,
-    img_size = 256,
+    img_size = 100,
     lr: float = 1e-4,
     is_resume_training: bool = False):
 
@@ -36,7 +36,12 @@ def main(
     #LOADING DATA
     full_dataset = ClassificationDataset(
         one_hot = False,
-        augmentation= A.augmentations.geometric.resize.RandomScale (scale_limit=0.1, interpolation=1, always_apply=False, p=0.5),
+        augmentation= A.augmentations.geometric.resize.RandomScale (height = img_size,
+                                                                    width = img_size,
+                                                                    scale_limit=0.1,
+                                                                    interpolation=1,
+                                                                    always_apply=False,
+                                                                    p=0.5),
         npz_path= npz_path,
         size = img_size)
     
