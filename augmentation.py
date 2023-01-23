@@ -27,10 +27,10 @@ def aug_transform(
     #         A.HueSaturationValue(p=0.1)
     #     ])
     trans = A.augmentations.geometric.transforms.Affine (scale=None, 
-                                                        translate_percent=0.3, 
+                                                        translate_percent=0.0, 
                                                         translate_px=None,
                                                         rotate=None,
-                                                        shear=None, 
+                                                        shear=0.3, 
                                                         interpolation=1, 
                                                         mask_interpolation=0,
                                                         cval=0, 
