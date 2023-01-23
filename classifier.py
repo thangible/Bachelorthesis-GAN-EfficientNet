@@ -8,7 +8,8 @@ from torchmetrics.classification import MulticlassAccuracy, MulticlassF1Score, M
 from torchvision import transforms 
 from torch.utils.data import DataLoader
 from parser_config import config_parser
-from augmentation import  aug_transform
+import albumentations as A
+# from augmentation import  aug_transform
 from tqdm import tqdm #te quiero demasio. taqadum
 from segmentation_dataset import ClassificationDataset
 from pathlib import Path
@@ -35,7 +36,7 @@ def main(
     #LOADING DATA
     full_dataset = ClassificationDataset(
         one_hot = False,
-        augmentation= aug_transform(),
+        augmentation= A.augmentations.geometric.resize.RandomScale (scale_limit=0.1, interpolation=1, always_apply=False, p=0.5),
         npz_path= npz_path,
         size = img_size)
     
