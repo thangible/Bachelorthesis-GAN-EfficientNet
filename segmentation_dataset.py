@@ -137,6 +137,7 @@ class ClassificationDataset(Dataset):
         fig = plt.figure()
         plt.imshow(image.permute(1, 2, 0))
         plt.title('Category: {}, Label: {}'.format(label, category))
+        return fig
     
     def _get_num_classes(self):
         return len(np.unique(self._labels))

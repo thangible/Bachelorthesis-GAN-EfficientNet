@@ -5,7 +5,7 @@ import timm
 import torch.optim as optim
 import wandb
 from torchmetrics.classification import MulticlassAccuracy, MulticlassF1Score, MulticlassPrecision, MulticlassRecall
-from torchvision import transforms 
+from torchvision import transforms, utils
 from torch.utils.data import DataLoader
 from parser_config import config_parser
 import albumentations as A
@@ -29,14 +29,19 @@ def main(
     num_workers: int = 8,
     img_size = 100,
     lr: float = 1e-4,
-    is_resume_training: bool = False):
+    is_resume_training: bool = False,
+    given_augment = None):
 
-
+    if given_augment:
+        augment = given_augment
+    else:
+        augment = aug_transform()
+    
     trained_epochs = 0
     #LOADING DATA
     full_dataset = ClassificationDataset(
         one_hot = False,
-        augmentation= aug_transform(),
+        augmentation= augment,
         npz_path= npz_path,
         image_path= image_path,
         label_path= label_path,
@@ -61,7 +66,7 @@ def main(
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
     #CONFIG LOGS FOR SAVING LATER
-    SAVE_PATH = Path(log_path, "classifier.pth")
+    SAVE_PATH = Path(log_path, "classifier_{}.pth".format(run_name))
     Path(log_path).mkdir(parents=True, exist_ok=True)
     
     
@@ -91,6 +96,10 @@ def main(
     
     for e in range(trained_epochs, epochs + trained_epochs):
         for img_train, label_train in tqdm(train_dataloader, total=len(train_dataloader)):
+            if e == trained_epochs:
+                log_imgs = utils.make_grid(img_train)
+                log_images = wandb.Image(log_imgs, caption="{}".format(run_name))
+                wandb.log({"examples": log_images})
             img_train = img_train.to(device)
             label_train = label_train.to(device)
             # predict
@@ -103,6 +112,8 @@ def main(
             OPTIM.step()
             # logging
             LOSSES.append(LOSS.data.item())
+            
+            
             
         # end of epoch
         # validate the model
@@ -193,5 +204,14 @@ if __name__ == "__main__":
          img_size = args.size)
 
 
-
+def single_run(args):
+    wandb.init(project="classifier-efficientnet")
+    if args.run_name:
+        wandb.run.name = args.run_name
     
+    main(epochs = args.epochs, 
+         run_name = args.run_name,
+         npz_path = args.npz_path,
+         image_path = args.image_path,
+         label_path = args.label_path,
+         img_size = args.size)

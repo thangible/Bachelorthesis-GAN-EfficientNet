@@ -14,9 +14,9 @@ def config_parser():
                         help='name of the run on wandb')  
     parser.add_argument("--image_path", type=str, default=None,
                         help='Image Path')  
-    parser.add_argument("--label_path", type=str, default='None',
+    parser.add_argument("--label_path", type=str, default=None,
                         help='label path')  
-    parser.add_argument("--npz_path", type=str, default='None',
+    parser.add_argument("--npz_path", type=str, default=None,
                         help='npz path')  
     parser.add_argument("--size", type=int, default=256,
                         help='image size') 
