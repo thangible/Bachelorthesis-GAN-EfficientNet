@@ -21,7 +21,7 @@ def main(
     run_name: str,
     root_path: str = ('.'),
     log_path: str = "./data/classification/logs",
-    npz_path: str = 'classification_dataset.npz',
+    npz_path: str = None,
     image_path: str =  None,
     label_path: str = None,
     batch_size: int = 32,
@@ -38,6 +38,8 @@ def main(
         one_hot = False,
         augmentation= aug_transform(),
         npz_path= npz_path,
+        image_path= image_path,
+        label_path= label_path,
         size = img_size)
     
     num_classes = full_dataset._get_num_classes()
@@ -183,7 +185,12 @@ if __name__ == "__main__":
     if args.run_name:
         wandb.run.name = args.run_name
     
-    main(epochs = args.epochs, run_name = args.run_name)
+    main(epochs = args.epochs, 
+         run_name = args.run_name,
+         npz_path = args.npz_path,
+         image_path = args._image_path,
+         label_path = args._label_path,
+         size = args._size)
 
 
 

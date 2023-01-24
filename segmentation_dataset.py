@@ -8,6 +8,7 @@ from torchvision.io import read_image
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn import preprocessing
+import cv2
 
 
 class ClassificationDataset(Dataset):
@@ -91,19 +92,18 @@ class ClassificationDataset(Dataset):
     def _get_image(self, index: int):
         if self._npz_path:
             image =  self._images[index]
-            #AUGMENTATION
-            if self._augmentation:
-                image = self._augmentation(image = image.astype(np.float32))['image']
-            image = transforms.ToTensor()(image)
         else:
           image_name = self._image_names[index]
           path = PurePath(self._image_path, image_name)
-          image = read_image(str(path))
+          image = cv2.imread(str(path))
+        #AUGMENTATION
+        if self._augmentation:
+            image = self._augmentation(image = image.astype(np.float32))['image']
+        image = transforms.ToTensor()(image)
         #RESIZE
         if self._size != image.shape[0]:
             image = self._resize(image)
-        
-            
+
         return image
         
     def _get_label(self, index: int):

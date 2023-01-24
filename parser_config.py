@@ -12,6 +12,12 @@ def config_parser():
                         help='number of epochs')  
     parser.add_argument("--run_name", type=str, default='No aug',
                         help='name of the run on wandb')  
+    parser.add_argument("--image_path", type=str, default=None,
+                        help='Image Path')  
+    parser.add_argument("--label_path", type=str, default='None',
+                        help='label path')  
+    parser.add_argument("--size", type=str, default='256',
+                        help='image size') 
     # parser.add_argument('--unwanted_classes', type=json.loads)
     # parser.add_argument('--unwanted_pics', type=json.loads)
     return parser
