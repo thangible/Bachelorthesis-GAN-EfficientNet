@@ -188,9 +188,9 @@ if __name__ == "__main__":
     main(epochs = args.epochs, 
          run_name = args.run_name,
          npz_path = args.npz_path,
-         image_path = args._image_path,
-         label_path = args._label_path,
-         size = args._size)
+         image_path = args.image_path,
+         label_path = args.label_path,
+         size = args.size)
 
 
 
