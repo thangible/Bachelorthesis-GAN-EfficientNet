@@ -16,6 +16,8 @@ def config_parser():
                         help='Image Path')  
     parser.add_argument("--label_path", type=str, default='None',
                         help='label path')  
+    parser.add_argument("--npz_path", type=str, default='None',
+                        help='npz path')  
     parser.add_argument("--size", type=str, default='256',
                         help='image size') 
     # parser.add_argument('--unwanted_classes', type=json.loads)
