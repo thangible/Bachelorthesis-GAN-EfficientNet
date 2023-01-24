@@ -20,6 +20,8 @@ def config_parser():
                         help='npz path')  
     parser.add_argument("--size", type=int, default=256,
                         help='image size') 
+    parser.add_argument("--lr", type=float, default=1e-4,
+                        help='learning rate') 
     # parser.add_argument('--unwanted_classes', type=json.loads)
     # parser.add_argument('--unwanted_pics', type=json.loads)
     return parser

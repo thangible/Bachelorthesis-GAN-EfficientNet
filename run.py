@@ -47,5 +47,5 @@ if __name__ == "__main__":
                  ]
     
     
-    for i in len(augmentations):
+    for i in range(len(augmentations)):
         classifier.single_run(args, given_augment = augmentations[i], run_name = run_names[i])

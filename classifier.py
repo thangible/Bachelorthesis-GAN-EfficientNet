@@ -14,9 +14,6 @@ from tqdm import tqdm #te quiero demasio. taqadum
 from segmentation_dataset import ClassificationDataset
 from pathlib import Path
 
-
-
-
 def main(
     run_name: str,
     root_path: str = ('.'),
@@ -94,6 +91,8 @@ def main(
     "run_name": run_name
     }
     
+    is_last_epoch_flag = False
+    
     for e in range(trained_epochs, epochs + trained_epochs):
         for img_train, label_train in tqdm(train_dataloader, total=len(train_dataloader)):
             if e == trained_epochs:
@@ -113,8 +112,9 @@ def main(
             # logging
             LOSSES.append(LOSS.data.item())
             
-            
-            
+        if epochs + trained_epochs == e - 1:
+            is_last_epoch_flag = True
+        
         # end of epoch
         # validate the model
         valid_classifier(
@@ -122,8 +122,7 @@ def main(
             num_classes=num_classes,
             loader_test=validation_dataloader,
             device=device,
-            current_epoch=e
-        )
+            is_last_epoch_flag= is_last_epoch_flag)
 
     # torch.save(MODEL.state_dict(), SAVE_PATH)
     torch.save({
@@ -135,7 +134,7 @@ def main(
             }, SAVE_PATH)
     
     
-def valid_classifier(model, num_classes, loader_test, device, current_epoch):
+def valid_classifier(model, num_classes, loader_test, device, is_last_epoch_flag):
     accuracy = MulticlassAccuracy(num_classes=num_classes, top_k=1).to(device)
     f1score = MulticlassF1Score(num_classes=num_classes).to(device)
     precision = MulticlassPrecision(num_classes=num_classes).to(device)
@@ -165,6 +164,12 @@ def valid_classifier(model, num_classes, loader_test, device, current_epoch):
         f1score_top3.update(preds=predicted, target=label)
         precision_top3.update(preds=predicted, target=label)
         recall_top3.update(preds=predicted, target=label)
+        
+        if is_last_epoch_flag:
+            pass
+        
+
+    
 
     # calculate average metrics over all batches (single results in the container)
     avg_acc = accuracy.compute()
@@ -203,15 +208,16 @@ if __name__ == "__main__":
          label_path = args.label_path,
          img_size = args.size)
 
-
-def single_run(args):
+def single_run(args, run_name, given_argument):
     wandb.init(project="classifier-efficientnet")
-    if args.run_name:
-        wandb.run.name = args.run_name
+    
+    wandb.run.name = run_name
     
     main(epochs = args.epochs, 
          run_name = args.run_name,
          npz_path = args.npz_path,
          image_path = args.image_path,
          label_path = args.label_path,
-         img_size = args.size)
+         img_size = args.size,
+         lr = args.lr,
+         given_augment = given_argument)
