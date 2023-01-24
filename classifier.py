@@ -190,7 +190,7 @@ if __name__ == "__main__":
          npz_path = args.npz_path,
          image_path = args.image_path,
          label_path = args.label_path,
-         size = args.size)
+         img_size = args.size)
 
 
 
