@@ -1,5 +1,6 @@
 label_path = "/data/ISEAD/segmentation_masks/manual_annotated_data.csv"
 image_path = "/data/ISEAD/segmentation_masks/JPEGImages"
+npz_path = "classification_dataset.npz"
 size = 256
 epochs = 100
 lr = 1e-3
