@@ -37,11 +37,13 @@ if __name__ == "__main__":
                                                         mode=0, 
                                                         fit_output=False, 
                                                         keep_ratio=True,
-                                                        always_apply=True, p=0.3) 
+                                                        always_apply=True, p=0.3) ,
+                    'no augment'
                      ]
     run_names = ['RandomScale 0,3',
                  'Translate 0.3',
                  'shear 0.3',
+                 'no augment'
                  ]
     
     

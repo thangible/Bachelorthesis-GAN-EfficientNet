@@ -31,6 +31,8 @@ def main(
 
     if given_augment:
         augment = given_augment
+    elif given_augment == 'no augment':
+        augment = None
     else:
         augment = aug_transform()
     
