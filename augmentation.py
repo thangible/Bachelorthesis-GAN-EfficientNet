@@ -27,7 +27,7 @@ def aug_transform(
     #         A.HueSaturationValue(p=0.1)
     #     ])
     # trans = A.augmentations.geometric.transforms.Affine (scale=None, 
-    #                                                     translate_percent=0.0, 
+    #                                                     translate_percent=0.3, 
     #                                                     translate_px=None,
     #                                                     rotate=None,
     #                                                     shear=0.3, 
@@ -38,7 +38,7 @@ def aug_transform(
     #                                                     mode=0, 
     #                                                     fit_output=False, 
     #                                                     keep_ratio=True,
-    #                                                     always_apply=True, p=1) 
+    #                                                     always_apply=True, p=0.3) 
     trans = A.RandomBrightnessContrast(p=0.3)
     # trans =  A.augmentations.geometric.resize.RandomScale (scale_limit=0.1, interpolation=1, always_apply=False, p=0.5)
     return trans

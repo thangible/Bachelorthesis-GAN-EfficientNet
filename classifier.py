@@ -30,7 +30,7 @@ def main(
     given_augment = None):
 
     if given_augment:
-        augment = given_augment
+        augment = given_augment()
     else:
         augment = aug_transform()
     
@@ -208,7 +208,7 @@ if __name__ == "__main__":
          label_path = args.label_path,
          img_size = args.size)
 
-def single_run(args, run_name, given_argument):
+def single_run(args, run_name, given_augment):
     wandb.init(project="classifier-efficientnet")
     
     wandb.run.name = run_name
@@ -220,4 +220,6 @@ def single_run(args, run_name, given_argument):
          label_path = args.label_path,
          img_size = args.size,
          lr = args.lr,
-         given_augment = given_argument)
+         given_augment = given_augment)
+    
+    wandb.finish()
