@@ -29,10 +29,10 @@ def main(
     is_resume_training: bool = False,
     given_augment = None):
 
-    if given_augment:
-        augment = given_augment
-    elif given_augment == 'no augment':
+    if given_augment == 'no augment':
         augment = None
+    elif given_augment:
+        augment = given_augment
     else:
         augment = aug_transform()
     
