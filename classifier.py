@@ -30,7 +30,7 @@ def main(
     given_augment = None):
 
     if given_augment:
-        augment = given_augment()
+        augment = given_augment
     else:
         augment = aug_transform()
     

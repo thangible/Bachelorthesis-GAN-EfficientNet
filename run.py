@@ -40,7 +40,7 @@ if __name__ == "__main__":
                                                         always_apply=True, p=0.3) 
                      ]
     run_names = ['RandomScale 0,3',
-                 'Translate 0.3'
+                 'Translate 0.3',
                  'shear 0.3',
                  ]
     
