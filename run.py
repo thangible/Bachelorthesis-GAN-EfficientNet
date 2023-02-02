@@ -12,7 +12,7 @@ if __name__ == "__main__":
     
     CenterCrop = A.Compose([A.CenterCrop(height = 200, width = 200, p=1.0), 
                          A.Resize(height = 500, width = 500, interpolation=1, p=1.0)])
-    MotionBlur =  A.MotionBlur(blur_limit =30,  p=1.0)
+    MotionBlur =  A.MotionBlur(blur_limit =31,  p=1.0)
     Clahe = A.CLAHE(p=1.0)
     Sharpen = A.Sharpen(alpha = (0.2, 0.5), lightness = (0.5, 1.0), p=1.0)
     ColorJitter =  A.ColorJitter( p=1.0)
