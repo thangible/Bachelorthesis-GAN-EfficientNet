@@ -11,40 +11,12 @@ if __name__ == "__main__":
     parser = config_parser()
     args  = parser.parse_args()
     
-    augmentations = [A.augmentations.geometric.resize.RandomScale (scale_limit=0.1, interpolation=1, always_apply=False, p=0.3),
-                    A.augmentations.geometric.transforms.Affine (scale=None, 
-                                                        translate_percent=0.3, 
-                                                        translate_px=None,
-                                                        rotate=None,
-                                                        shear=0.0, 
-                                                        interpolation=1, 
-                                                        mask_interpolation=0,
-                                                        cval=0, 
-                                                        cval_mask=0, 
-                                                        mode=0, 
-                                                        fit_output=False, 
-                                                        keep_ratio=True,
-                                                        always_apply=True, p=0.3),
-                    A.augmentations.geometric.transforms.Affine (scale=None, 
-                                                        translate_percent=0.0, 
-                                                        translate_px=None,
-                                                        rotate=None,
-                                                        shear=0.3, 
-                                                        interpolation=1, 
-                                                        mask_interpolation=0,
-                                                        cval=0, 
-                                                        cval_mask=0, 
-                                                        mode=0, 
-                                                        fit_output=False, 
-                                                        keep_ratio=True,
-                                                        always_apply=True, p=0.3) ,
-                    'no augment'
+    center_crop = A.Compose([A.CenterCrop(height = 200, width = 200, p=1.0), 
+                         A.Resize(height = 500, width = 500, interpolation=1, p=1.0)
+                         ])
+    augmentations = [center_crop
                      ]
-    run_names = ['RandomScale 0,3',
-                 'Translate 0.3',
-                 'shear 0.3',
-                 'no augment'
-                 ]
+    run_names = ['center_crop']
     
     
     for i in range(len(augmentations)):
