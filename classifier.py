@@ -114,7 +114,7 @@ def main(
             # logging
             LOSSES.append(LOSS.data.item())
             
-        if epochs + trained_epochs == e - 1:
+        if epochs + trained_epochs -1 == e:
             is_last_epoch_flag = True
         
         # end of epoch
