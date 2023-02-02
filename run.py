@@ -19,9 +19,8 @@ if __name__ == "__main__":
     Solarize = A.Solarize(p=1)
     ToGray = A.ToGray(p=1)
     
-    augmentations = [MotionBlur,Clahe, Sharpen, ColorJitter]
-    run_names = ['Motion Blur - limit 30',
-                 'Clahe - Default'
+    augmentations = ['no augment', Sharpen, ColorJitter]
+    run_names = ['no augment',
                  'Sharpen - alpha (0.2, 0.5), lightness (0.5,1)',
                  'ColorJitter - Default',
                  'Solarize - Default',
