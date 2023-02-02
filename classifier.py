@@ -176,9 +176,13 @@ def valid_classifier(model, num_classes, loader_test, device, is_last_epoch_flag
                 top_3_label = torch.topk(predicted[i].flatten(), 3).indices
                 top_3_cat = [get_cat_from_label(label) for label in top_3_label]
                 img_to_log = wandb.Image(img[i,...], 
-                                  caption="P_label: {}, T_label: {}, \n \ P_cat: {}, T_cat: {}".format(top_3_label,
+                                  caption="P_label: {}{}{} \n  T_label: {} \n  \n  P_cat: {}{}{} \n  T_cat: {}".format(top_3_label[0],
+                                                                                                           top_3_label[1],
+                                                                                                           top_3_label[2],
                                                                                                     label[i],
-                                                                                                    top_3_cat,
+                                                                                                    top_3_cat[0],
+                                                                                                    top_3_cat[1],
+                                                                                                    top_3_cat[2],
                                                                                                     cat[i]))
                 imgs_to_log.append(img_to_log)
             wandb.log({"Predictions in last epoch": imgs_to_log})
