@@ -157,15 +157,15 @@ def valid_classifier(model, num_classes, loader_test, device, is_last_epoch_flag
 
         # update metrics
         predicted = predicted.to(device)
-        accuracy.update(preds=predicted, target=label)
-        f1score.update(preds=predicted, target=label)
-        precision.update(preds=predicted, target=label)
-        recall.update(preds=predicted, target=label)
+        accuracy(preds=predicted, target=label)
+        f1score(preds=predicted, target=label)
+        precision(preds=predicted, target=label)
+        recall(preds=predicted, target=label)
         # update top3 metrics
-        accuracy_top3.update(preds=predicted, target=label)
-        f1score_top3.update(preds=predicted, target=label)
-        precision_top3.update(preds=predicted, target=label)
-        recall_top3.update(preds=predicted, target=label)
+        accuracy_top3(preds=predicted, target=label)
+        f1score_top3(preds=predicted, target=label)
+        precision_top3(preds=predicted, target=label)
+        recall_top3(preds=predicted, target=label)
         
         if is_last_epoch_flag:
             pass
