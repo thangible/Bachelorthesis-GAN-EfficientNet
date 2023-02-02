@@ -171,11 +171,11 @@ def valid_classifier(model, num_classes, loader_test, device, is_last_epoch_flag
         if is_last_epoch_flag:
             
             for i in range(img.shape[0]):
-                img = wandb.Image(img[i,...], 
+                img_to_log = wandb.Image(img[i,...], 
                                   caption="Predicted: {}, true label: {}, true category: {}".format(predicted[i],
                                                                                                     label[i],
                                                                                                     cat[i]))
-                wandb.log({"Prediction in last epoch": img})
+                wandb.log({"Prediction in last epoch": img_to_log})
         
 
     # calculate average metrics over all batches (single results in the container)
