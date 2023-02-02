@@ -171,16 +171,17 @@ def valid_classifier(model, num_classes, loader_test, device, is_last_epoch_flag
         recall_top3.update(preds=predicted, target=label)
         
         if is_last_epoch_flag:
-            
+            imgs_to_log = []
             for i in range(img.shape[0]):
-                top_3_label = torch.topk(predicted.flatten(), 3).indices
+                top_3_label = torch.topk(predicted[i].flatten(), 3).indices
                 top_3_cat = [get_cat_from_label(label) for label in top_3_label]
                 img_to_log = wandb.Image(img[i,...], 
                                   caption="P_label: {}, T_label: {}, \n \ P_cat: {}, T_cat: {}".format(top_3_label,
                                                                                                     label[i],
                                                                                                     top_3_cat,
                                                                                                     cat[i]))
-                wandb.log({"Prediction in last epoch": img_to_log})
+                img_to_logs.append(img_to_log)
+            wandb.log({"Predictions in last epoch": imgs_to_log})
         
 
     # calculate average metrics over all batches (single results in the container)
