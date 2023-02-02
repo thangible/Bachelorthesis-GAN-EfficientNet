@@ -58,7 +58,8 @@ class ClassificationDataset(Dataset):
         ##LOADER
         img = self._get_image(index)
         label = self._get_label(index)
-        return img, label
+        cat = self._get_category(index)
+        return img, label, cat
     
     def __len__(self) -> int:
         return self._labels.shape[0]
