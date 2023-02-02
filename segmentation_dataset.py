@@ -47,12 +47,7 @@ class ClassificationDataset(Dataset):
             self._image_names, self._labels, self._categories = self._get_names_and_labels_categories()
 
         self._num_classes = self._get_num_classes()
-        
-        
-        
-        
-
-        
+        self._all_categories = np.unique(self._categories)        
         
     def __getitem__(self, index: int) -> tuple:
         ##LOADER
@@ -142,4 +137,7 @@ class ClassificationDataset(Dataset):
     
     def _get_num_classes(self):
         return len(np.unique(self._labels))
+    
+    def _get_cat_from_label(self, index):
+        return self._all_categories[index]
     

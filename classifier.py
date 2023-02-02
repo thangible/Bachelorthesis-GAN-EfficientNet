@@ -46,6 +46,7 @@ def main(
         label_path= label_path,
         size = img_size)
     
+    get_cat_from_label = full_dataset._get_cat_from_label
     num_classes = full_dataset._get_num_classes()
     train_size = int(0.8 * len(full_dataset))
     valid_size = len(full_dataset) - train_size
@@ -125,7 +126,8 @@ def main(
             loader_test=validation_dataloader,
             device=device,
             is_last_epoch_flag= is_last_epoch_flag,
-            epoch = e)
+            epoch = e,
+            get_cat_from_label = get_cat_from_label)
 
     # torch.save(MODEL.state_dict(), SAVE_PATH)
     torch.save({
@@ -137,7 +139,7 @@ def main(
             }, SAVE_PATH)
     
     
-def valid_classifier(model, num_classes, loader_test, device, is_last_epoch_flag, epoch):
+def valid_classifier(model, num_classes, loader_test, device, is_last_epoch_flag, epoch, get_cat_from_label):
     accuracy = MulticlassAccuracy(num_classes=num_classes, top_k=1).to(device)
     f1score = MulticlassF1Score(num_classes=num_classes).to(device)
     precision = MulticlassPrecision(num_classes=num_classes).to(device)
@@ -171,9 +173,12 @@ def valid_classifier(model, num_classes, loader_test, device, is_last_epoch_flag
         if is_last_epoch_flag:
             
             for i in range(img.shape[0]):
+                top_3_label = torch.topk(predicted.flatten(), 3).indices
+                top_3_cat = [get_cat_from_label(label) for label in top_3_label]
                 img_to_log = wandb.Image(img[i,...], 
-                                  caption="Predicted: {}, true label: {}, true category: {}".format(predicted[i],
+                                  caption="P_label: {}, T_label: {}, \n \ P_cat: {}, T_cat: {}".format(top_3_label,
                                                                                                     label[i],
+                                                                                                    top_3_cat,
                                                                                                     cat[i]))
                 wandb.log({"Prediction in last epoch": img_to_log})
         
@@ -189,8 +194,6 @@ def valid_classifier(model, num_classes, loader_test, device, is_last_epoch_flag
     avg_f1_top3 = f1score_top3.compute()
     avg_precision_top3 = precision_top3.compute()
     avg_recall_top3 = recall_top3.compute()
-    
-    print('--- LOGGING THE METRIC IN WANDB --- ')
     wandb.log({"accuracy": avg_acc, 'epoch': epoch})
     wandb.log({"f1score": avg_f1, 'epoch': epoch})
     wandb.log({"precision": avg_precision, 'epoch': epoch})
