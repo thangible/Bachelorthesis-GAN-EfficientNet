@@ -180,7 +180,7 @@ def valid_classifier(model, num_classes, loader_test, device, is_last_epoch_flag
                                                                                                     label[i],
                                                                                                     top_3_cat,
                                                                                                     cat[i]))
-                img_to_logs.append(img_to_log)
+                imgs_to_log.append(img_to_log)
             wandb.log({"Predictions in last epoch": imgs_to_log})
         
 
