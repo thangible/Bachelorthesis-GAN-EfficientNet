@@ -16,7 +16,7 @@ if __name__ == "__main__":
                          ])
     augmentations = [center_crop
                      ]
-    run_names = ['center_crop']
+    run_names = ['center crop 200/500']
     
     
     for i in range(len(augmentations)):
