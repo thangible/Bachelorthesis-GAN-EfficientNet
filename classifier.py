@@ -24,7 +24,7 @@ def main(
     batch_size: int = 32,
     epochs: int = 100,
     num_workers: int = 8,
-    img_size = 100,
+    img_size = 500,
     lr: float = 1e-4,
     is_resume_training: bool = False,
     given_augment = None):
@@ -216,6 +216,15 @@ def single_run(args, run_name, given_augment):
     
     wandb.run.name = run_name
     
+    wandb.config = {'epochs' : args.epochs, 
+    'run_name' : args.run_name,
+    'npz_path' :args.npz_path,
+    'image_path' : args.image_path,
+    'label_path' : args.label_path,
+    'img_size' : args.size,
+    'lr' : args.lr
+    }
+    
     main(epochs = args.epochs, 
          run_name = args.run_name,
          npz_path = args.npz_path,
@@ -224,5 +233,7 @@ def single_run(args, run_name, given_augment):
          img_size = args.size,
          lr = args.lr,
          given_augment = given_augment)
+    
+    
     
     wandb.finish()
