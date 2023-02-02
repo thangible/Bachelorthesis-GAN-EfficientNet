@@ -208,7 +208,8 @@ if __name__ == "__main__":
          npz_path = args.npz_path,
          image_path = args.image_path,
          label_path = args.label_path,
-         img_size = args.size)
+         img_size = args.size,
+         augment = args.augment)
 
 def single_run(args, run_name, given_augment):
     wandb.init(project="classifier-efficientnet")

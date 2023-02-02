@@ -22,6 +22,8 @@ def config_parser():
                         help='image size') 
     parser.add_argument("--lr", type=float, default=1e-4,
                         help='learning rate') 
+    parser.add_argument("--augment", type=str, default=None,
+                        help='augment method') 
     # parser.add_argument('--unwanted_classes', type=json.loads)
     # parser.add_argument('--unwanted_pics', type=json.loads)
     return parser
