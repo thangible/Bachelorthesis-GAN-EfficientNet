@@ -124,7 +124,8 @@ def main(
             num_classes=num_classes,
             loader_test=validation_dataloader,
             device=device,
-            is_last_epoch_flag= is_last_epoch_flag)
+            is_last_epoch_flag= is_last_epoch_flag,
+            epoch = e)
 
     # torch.save(MODEL.state_dict(), SAVE_PATH)
     torch.save({
@@ -136,7 +137,7 @@ def main(
             }, SAVE_PATH)
     
     
-def valid_classifier(model, num_classes, loader_test, device, is_last_epoch_flag):
+def valid_classifier(model, num_classes, loader_test, device, is_last_epoch_flag, epoch):
     accuracy = MulticlassAccuracy(num_classes=num_classes, top_k=1).to(device)
     f1score = MulticlassF1Score(num_classes=num_classes).to(device)
     precision = MulticlassPrecision(num_classes=num_classes).to(device)
@@ -171,8 +172,6 @@ def valid_classifier(model, num_classes, loader_test, device, is_last_epoch_flag
             pass
         
 
-    
-
     # calculate average metrics over all batches (single results in the container)
     avg_acc = accuracy.compute()
     avg_f1 = f1score.compute()
@@ -185,14 +184,15 @@ def valid_classifier(model, num_classes, loader_test, device, is_last_epoch_flag
     avg_precision_top3 = precision_top3.compute()
     avg_recall_top3 = recall_top3.compute()
     
-    wandb.log({"accuracy": avg_acc})
-    wandb.log({"f1score": avg_f1})
-    wandb.log({"precision": avg_precision})
-    wandb.log({"recall": avg_recall})
-    wandb.log({"accuracy top 3": avg_acc_top3})
-    wandb.log({"f1score top 3": avg_f1_top3})
-    wandb.log({"precision top 3": avg_precision_top3})
-    wandb.log({"recalltop 3": avg_recall_top3})
+    print('--- LOGGING THE METRIC IN WANDB --- ')
+    wandb.log({"accuracy": avg_acc, 'epoch': epoch})
+    wandb.log({"f1score": avg_f1, 'epoch': epoch})
+    wandb.log({"precision": avg_precision, 'epoch': epoch})
+    wandb.log({"recall": avg_recall, 'epoch': epoch})
+    wandb.log({"accuracy top 3": avg_acc_top3, 'epoch': epoch})
+    wandb.log({"f1score top 3": avg_f1_top3, 'epoch': epoch})
+    wandb.log({"precision top 3": avg_precision_top3, 'epoch': epoch})
+    wandb.log({"recalltop 3": avg_recall_top3, 'epoch': epoch})
     
 if __name__ == "__main__":
     #CONFIG PARSER
