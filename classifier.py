@@ -96,7 +96,7 @@ def main(
     is_last_epoch_flag = False
     
     for e in range(trained_epochs, epochs + trained_epochs):
-        for img_train, label_train in tqdm(train_dataloader, total=len(train_dataloader)):
+        for img_train, label_train, cat_train in tqdm(train_dataloader, total=len(train_dataloader)):
             if e == trained_epochs:
                 log_imgs = utils.make_grid(img_train)
                 log_images = wandb.Image(log_imgs, caption="{}".format(run_name))
@@ -149,7 +149,7 @@ def valid_classifier(model, num_classes, loader_test, device, is_last_epoch_flag
     recall_top3 = MulticlassRecall(num_classes=num_classes, top_k=3).to(device)
 
     # testing loop
-    for img, label in loader_test:
+    for img, label, cat in loader_test:
         #load
         img = img.to(device)
         label = label.to(device)
@@ -158,18 +158,24 @@ def valid_classifier(model, num_classes, loader_test, device, is_last_epoch_flag
 
         # update metrics
         predicted = predicted.to(device)
-        accuracy(preds=predicted, target=label)
-        f1score(preds=predicted, target=label)
-        precision(preds=predicted, target=label)
-        recall(preds=predicted, target=label)
+        accuracy.update(preds=predicted, target=label)
+        f1score.update(preds=predicted, target=label)
+        precision.update(preds=predicted, target=label)
+        recall.update(preds=predicted, target=label)
         # update top3 metrics
-        accuracy_top3(preds=predicted, target=label)
-        f1score_top3(preds=predicted, target=label)
-        precision_top3(preds=predicted, target=label)
-        recall_top3(preds=predicted, target=label)
+        accuracy_top3.update(preds=predicted, target=label)
+        f1score_top3.update(preds=predicted, target=label)
+        precision_top3.update(preds=predicted, target=label)
+        recall_top3.update(preds=predicted, target=label)
         
         if is_last_epoch_flag:
-            pass
+            
+            for i in range(img.shape[0]):
+                img = wandb.Image(img[i,...], 
+                                  caption="Predicted: {}, true label: {}, true category: {}".format(predicted[i],
+                                                                                                    label[i],
+                                                                                                    cat[i]))
+                wandb.log({"Prediction in last epoch": img})
         
 
     # calculate average metrics over all batches (single results in the container)
