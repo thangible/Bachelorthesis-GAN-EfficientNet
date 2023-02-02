@@ -50,7 +50,8 @@ def main(
     num_classes = full_dataset._get_num_classes()
     train_size = int(0.8 * len(full_dataset))
     valid_size = len(full_dataset) - train_size
-    train_data, validation_data = torch.utils.data.random_split(full_dataset, [train_size, valid_size])
+    train_data, validation_data = torch.utils.data.random_split(full_dataset, [train_size, valid_size],
+                                                                 generator=torch.Generator().manual_seed(0))
     
     train_dataloader = DataLoader(train_data,
                                   batch_size=batch_size, 
