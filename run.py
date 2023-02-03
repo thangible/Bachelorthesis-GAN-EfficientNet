@@ -19,7 +19,7 @@ if __name__ == "__main__":
     Solarize = A.Solarize(p=1)
     ToGray = A.ToGray(p=1)
     
-    augmentations = ['no augment', Sharpen, ColorJitter]
+    augmentations = ['no augment', Sharpen, ColorJitter, Solarize, ToGray]
     run_names = ['no augment',
                  'Sharpen - alpha (0.2, 0.5), lightness (0.5,1)',
                  'ColorJitter - Default',
