@@ -94,7 +94,7 @@ class ClassificationDataset(Dataset):
           image = cv2.imread(str(path))
         #AUGMENTATION
         if self._augmentation:
-            image = self._augmentation(image = image.astype(np.float32))['image']
+            image = self._augmentation(image = image.astype(np.uint8))['image']
         image = transforms.ToTensor()(image)
         #RESIZE
         if self._size != image.shape[0]:
