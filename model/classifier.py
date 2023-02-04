@@ -46,12 +46,15 @@ def main(
         label_path= label_path,
         size = img_size)
     
+    
     get_cat_from_label = full_dataset._get_cat_from_label
     num_classes = full_dataset._get_num_classes()
     train_size = int(0.8 * len(full_dataset))
     valid_size = len(full_dataset) - train_size
     train_data, validation_data = torch.utils.data.random_split(full_dataset, [train_size, valid_size],
-                                                                 generator=torch.Generator().manual_seed(0))
+                                                                  generator=torch.Generator().manual_seed(0))
+    # X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.1, stratify=y)
+    
     
     train_dataloader = DataLoader(train_data,
                                   batch_size=batch_size, 
@@ -171,13 +174,41 @@ def valid_classifier(model, num_classes, loader_test, device, is_last_epoch_flag
         precision_top3.update(preds=predicted, target=label)
         recall_top3.update(preds=predicted, target=label)
         
+        
+        EDGE_CATS = ['unbestimmter Lappentaucher', 
+                     'Weißschnauzendelphin', 
+                     'Knutt', 
+                     'Mauersegler', 
+                     'Graureiher',
+                     'Gryllteiste',
+                     'Buchfink',
+                     'Schnatterente',
+                     'unbestimmte Larusmöwe',
+                     'Fischereigerät (Schwimmer)'
+                     ]
+        if cat in EDGE_CATS:
+            top_3_label = torch.topk(predicted[i].flatten(), 3).indices
+            top_3_cat = [get_cat_from_label(label) for label in top_3_label]
+            edge_img_to_log = wandb.Image(img[i,...], 
+                                caption="P_label:[1]-{}\n[2]-{}\n[3]-{} \n  T_label: {} \n  \n  P_cat: [1]-{}\n[2]-{}\n[3]-{} \n  T_cat: {}".format(top_3_label[0],
+                                                                                                        top_3_label[1],
+                                                                                                        top_3_label[2],
+                                                                                                label[i],
+                                                                                                top_3_cat[0],
+                                                                                                top_3_cat[1],
+                                                                                                top_3_cat[2],
+                                                                                                cat[i]))
+            wandb.log({"EDGE CASE": edge_img_to_log})
+            
+            
+        
         if is_last_epoch_flag:
             imgs_to_log = []
             for i in range(img.shape[0]):
                 top_3_label = torch.topk(predicted[i].flatten(), 3).indices
                 top_3_cat = [get_cat_from_label(label) for label in top_3_label]
                 img_to_log = wandb.Image(img[i,...], 
-                                  caption="P_label: {}{}{} \n  T_label: {} \n  \n  P_cat: {}{}{} \n  T_cat: {}".format(top_3_label[0],
+                                  caption="P_label:[1]-{}\n[2]-{}\n[3]-{} \n  T_label: {} \n  \n  P_cat: [1]-{}\n[2]-{}\n[3]-{} \n  T_cat: {}".format(top_3_label[0],
                                                                                                            top_3_label[1],
                                                                                                            top_3_label[2],
                                                                                                     label[i],
@@ -185,7 +216,9 @@ def valid_classifier(model, num_classes, loader_test, device, is_last_epoch_flag
                                                                                                     top_3_cat[1],
                                                                                                     top_3_cat[2],
                                                                                                     cat[i]))
+
                 imgs_to_log.append(img_to_log)
+                
             wandb.log({"Predictions in last epoch": imgs_to_log})
         
 

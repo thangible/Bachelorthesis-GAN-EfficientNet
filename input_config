@@ -3,3 +3,4 @@ image_path = "/data/ISEAD/segmentation_masks/JPEGImages"
 size = 500
 epochs = 100
 lr = 1e-3
+batch_size = 64

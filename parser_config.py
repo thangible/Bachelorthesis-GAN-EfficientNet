@@ -24,6 +24,8 @@ def config_parser():
                         help='learning rate') 
     parser.add_argument("--augment", type=str, default=None,
                         help='augment method') 
+    parser.add_argument("--batch_size", type=int, default=64,
+                        help='batchsize') 
     # parser.add_argument('--unwanted_classes', type=json.loads)
     # parser.add_argument('--unwanted_pics', type=json.loads)
     return parser

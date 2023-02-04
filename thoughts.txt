@@ -1,0 +1,47 @@
+
+TASK:
+- List down all the augmentation method i want to use from albumentation; make sure to understand every arguments
+
+
+RESIZE:
+
+degrees: 0.0  # image rotation (+/- deg)
+ albumentations.augmentations.geometric.rotate.Rotate (limit=90, 
+ interpolation=1, 
+ border_mode=4, 
+ value=None, 
+ mask_value=None, 
+ rotate_method='largest_box', 
+ crop_border=False, 
+ always_apply=False,
+ p=0.5)
+
+ translate: 0.0  # image translation (+/- fraction)
+
+scale: 0.0  # image scale (+/- gain)
+
+shear: 0.0  # image shear (+/- deg
+
+
+fl_gamma: 0.0  # focal loss gamma (efficientDet default gamma=1.5)
+hsv_h: 0.00  # image HSV-Hue augmentation (fraction)
+hsv_s: 0.0  # image HSV-Saturation augmentation (fraction)
+hsv_v: 0.0  # image HSV-Value augmentation (fraction)
+)
+perspective: 0.0  # image perspective (+/- fraction), range 0-0.001
+
+class albumentations.augmentations.geometric.transforms.Perspective (scale=(0.05, 0.1), 
+keep_size=True, 
+pad_mode=0, 
+pad_val=0, 
+mask_pad_val=0, 
+fit_output=False, 
+interpolation=1, 
+always_apply=False, 
+p=1)
+
+flipud: 0.0  # image flip up-down (probability)
+fliplr: 0.0  # image flip left-right (probability)
+mosaic: 0.0  # image mosaic (probability)
+mixup: 0.0  # image mixup (probability)
+copy_paste: 0.0  # segment copy-paste (probability)
