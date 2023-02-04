@@ -23,12 +23,16 @@ if __name__ == "__main__":
     Perspective = A.Perspective(scale = (0.2,0.1),  p=1)
     Posterize = A.Posterize(p= 1)
     CropThenSharpen = A.Compose([CenterCrop, Sharpen])
+    CropThenCLAHE = A.Compose([CenterCrop, Clahe])
+    ChannelShuffle = A.ChannelShuffle(p =1)
+    Equalize = A.Equalize( p =1)
+    GaussNoise = A.GaussNoise(p =1)
+    Normalize = A.Normalize(p=1)
+    RandomConstrast = A.RandomContrast(limit=(-0.9, 0.9),p=1)
+    ToSepia = A.ToSepia(p=1)
     
-    augmentations = [CropThenSharpen, Posterize, Perspective, Clahe]
-    run_names = ['CropthenSharpen',
-                 'Posterize',
-                 'Perspective',
-                 'Clahe Default']
+    augmentations = [CropThenCLAHE, GaussNoise, Normalize, ChannelShuffle, RandomConstrast, ToSepia]
+    run_names = ['CropThenCLAHE','GaussNoise','Normalize', 'ChannelShuffle', 'RandomConstrast limit = 0.9','ToSepia']
     
     
     for i in range(len(augmentations)):
