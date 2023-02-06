@@ -3,18 +3,12 @@ import numpy as np
 import torch
 import torchvision
 from model.conwgan import *
+from torch.utils.data import DataLoader
+from segmentation_dataset import ClassificationDataset
 import wandb
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 RESTORE_MODE = False
-OUTPUT_PATH = '/path/to/output/' # output path where result (.e.g drawing images, cost, chart) will be stored
-LR = 1e-4
-NUM_CLASSES = 128
-START_ITER = 0 # starting iteration 
-GENER_ITERS = 1
-END_ITER = 10000 # How many iterations to train for
-BATCH_SIZE = 64
-
 
 def weights_init(m):
     if isinstance(m, MyConvo2d): 
@@ -34,10 +28,10 @@ def weights_init(m):
 def calc_gradient_penalty(netD, real_data, fake_data, batch_size = 64, LAMBDA = 10):
     alpha = torch.rand(batch_size, 1)
     alpha = alpha.expand(batch_size, int(real_data.nelement()/batch_size)).contiguous()
-    alpha = alpha.view(batch_size, 3, DIM, DIM)
+    alpha = alpha.view(batch_size, 3, netD.dim, netD.dim)
     alpha = alpha.to(device)
 
-    fake_data = fake_data.view(batch_size, 3, DIM, DIM)
+    fake_data = fake_data.view(batch_size, 3, netD.dim, netD.dim)
     interpolates = alpha * real_data.detach() + ((1 - alpha) * fake_data.detach())
 
     interpolates = interpolates.to(device)
@@ -46,14 +40,14 @@ def calc_gradient_penalty(netD, real_data, fake_data, batch_size = 64, LAMBDA = 
     disc_interpolates, _ = netD(interpolates)
 
     gradients = torch.autograd.grad(outputs=disc_interpolates, inputs=interpolates,
-                              grad_outputs=torch.ones(disc_interpolates.size()).to(device),
-                              create_graph=True, retain_graph=True, only_inputs=True)[0]
+                            grad_outputs=torch.ones(disc_interpolates.size()).to(device),
+                            create_graph=True, retain_graph=True, only_inputs=True)[0]
 
     gradients = gradients.view(gradients.size(0), -1)                              
     gradient_penalty = ((gradients.norm(2, dim=1) - 1) ** 2).mean() * LAMBDA
     return gradient_penalty
 
-def gen_rand_noise_with_label(label=None, batchsize = BATCH_SIZE, num_classes = NUM_CLASSES):
+def gen_rand_noise_with_label(num_classes, label=None, batchsize = 64):
     if label is None:
         label = np.random.randint(0, num_classes, batchsize)
     #attach label into noise
@@ -67,43 +61,58 @@ def gen_rand_noise_with_label(label=None, batchsize = BATCH_SIZE, num_classes = 
 
     return noise
 
-def generate_image(netG, noise=None):
+def generate_image(netG, num_classes, noise=None, batch_size = 64):
     if noise is None:
-        rand_label = np.random.randint(0, NUM_CLASSES, BATCH_SIZE)
-        noise = gen_rand_noise_with_label(rand_label)
+        rand_label = np.random.randint(0, num_classes, batch_size)
+        noise = gen_rand_noise_with_label(rand_label, batch_size, num_classes)
     with torch.no_grad():
         noisev = noise
     samples = netG(noisev)
-    samples = samples.view(BATCH_SIZE, 3, DIM, DIM)
+    samples = samples.view(batch_size, 3, netG.dim, netG.dim)
     samples = samples * 0.5 + 0.5
 
     return samples
 
 
-if RESTORE_MODE:
-    aG = torch.load(OUTPUT_PATH + "generator.pt")
-    aD = torch.load(OUTPUT_PATH + "discriminator.pt")
-else:
-    aG = GoodGenerator(64,64*64*3)
-    aD = GoodDiscriminator(64, NUM_CLASSES)
-    aG.apply(weights_init)
-    aD.apply(weights_init)
+
+def train(train_dataloader,
+          validation_dataloader,
+          num_classes,
+          output_path = './logs/',
+          ACGAN_SCALE_G = 1.,
+          ACGAN_SCALE = 1., 
+          CRITIC_ITERS = 5,
+          batch_size = 64,
+          start_iter = 0, # starting iteration 
+          GENER_ITERS = 1,
+          end_iter = 10000,
+          lr = 1e-4# How many iterations to train for
+    ) -> None:
     
-optimizer_g = torch.optim.Adam(aG.parameters(), lr=LR, betas=(0,0.9))
-optimizer_d = torch.optim.Adam(aD.parameters(), lr=LR, betas=(0,0.9))
-aux_criterion = nn.CrossEntropyLoss() # nn.NLLLoss()
+    if RESTORE_MODE:
+        aG = torch.load(output_path + "generator.pt")
+        aD = torch.load(output_path + "discriminator.pt")
+    else:
+        aG = GoodGenerator(64,64*64*3)
+        aD = GoodDiscriminator(64, num_classes)
+        aG.apply(weights_init)
+        aD.apply(weights_init)
+        
+    optimizer_g = torch.optim.Adam(aG.parameters(), lr=lr, betas=(0,0.9))
+    optimizer_d = torch.optim.Adam(aD.parameters(), lr=lr, betas=(0,0.9))
+    aux_criterion = nn.CrossEntropyLoss() # nn.NLLLoss()
 
-one = torch.FloatTensor([1])
-mone = one * -1
-aG = aG.to(device)
-aD = aD.to(device)
-one = one.to(device)
-mone = mone.to(device)
-
-def train(train_dataloader, validation_dataloader, ACGAN_SCALE_G = 1., ACGAN_SCALE = 1., CRITIC_ITERS = 5):
+    one = torch.FloatTensor([1])
+    mone = one * -1
+    aG = aG.to(device)
+    aD = aD.to(device)
+    one = one.to(device)
+    mone = mone.to(device)
+    
+    
     #writer = SummaryWriter()
     dataiter = iter(train_dataloader)
-    for iteration in range(START_ITER, END_ITER):
+    for iteration in range(start_iter, end_iter):
         #---------------------TRAIN G------------------------
         for p in aD.parameters():
             p.requires_grad_(False)  # freeze D
@@ -111,7 +120,7 @@ def train(train_dataloader, validation_dataloader, ACGAN_SCALE_G = 1., ACGAN_SCA
         for i in range(GENER_ITERS):
             print("Generator iters: " + str(i))
             aG.zero_grad()
-            f_label = np.random.randint(0, NUM_CLASSES, BATCH_SIZE)
+            f_label = np.random.randint(0, num_classes, batch_size)
             noise = gen_rand_noise_with_label(f_label)
             noise.requires_grad_(True)
             fake_data = aG(noise)
@@ -131,7 +140,7 @@ def train(train_dataloader, validation_dataloader, ACGAN_SCALE_G = 1., ACGAN_SCA
             aD.zero_grad()
 
             # gen fake data and load real data
-            f_label = np.random.randint(0, NUM_CLASSES, BATCH_SIZE)
+            f_label = np.random.randint(0, num_classes, batch_size)
             noise = gen_rand_noise_with_label(f_label)
             with torch.no_grad():
                 noisev = noise  # totally freeze G, training D
@@ -182,7 +191,7 @@ def train(train_dataloader, validation_dataloader, ACGAN_SCALE_G = 1., ACGAN_SCA
                     wandb.log({'D/conv1': img_to_log, 'epoch': iteration} )
                     
         wandb.log({'gen_cost': gen_cost, 'epoch': iteration})
-	#----------------------Generate images-----------------
+    #----------------------Generate images-----------------
         wandb.log({'train_disc_cost': disc_cost.cpu().data.numpy()})
         wandb.log({'train_gen_cost': gen_cost.cpu().data.numpy()})
         wandb.log({'wasserstein_distance': w_dist.cpu().data.numpy()})
@@ -192,26 +201,70 @@ def train(train_dataloader, validation_dataloader, ACGAN_SCALE_G = 1., ACGAN_SCA
                 imgs = torch.Tensor(images[0])
                 imgs = imgs.to(device)
                 with torch.no_grad():
-            	    imgs_v = imgs
-                D, _ = aD(imgs_v)
+                    imgs_v = imgs                
+                D,_ = aD(imgs_v)
+                fixed_label = []
+                for c in range(batch_size):
+                    fixed_label.append(c%num_classes)
+                fixed_noise = gen_rand_noise_with_label(fixed_label)
                 _dev_disc_cost = -D.mean().cpu().data.numpy()
-                dev_disc_costs.append(_dev_disc_cost)
-            gen_images = generate_image(aG, fixed_noise)
-            torchvision.utils.save_image(gen_images, OUTPUT_PATH + 'samples_{}.png'.format(iteration), nrow=8, padding=2)
+                dev_disc_costs.append(_dev_disc_cost)            
+            gen_images = generate_image(aG, fixed_noise = fixed_noise,
+                                        num_classes=num_classes, 
+                                        batch_size = batch_size)
+            torchvision.utils.save_image(gen_images, output_path + 'samples_{}.png'.format(iteration), nrow=8, padding=2)
             grid_images = torchvision.utils.make_grid(gen_images, nrow=8, padding=2)
             wandb.log({'fake image': grid_images, 'epoch': iteration} )
-	#----------------------Save model----------------------
-            torch.save(aG, OUTPUT_PATH + "generator.pt")
-            torch.save(aD, OUTPUT_PATH + "discriminator.pt")
+    #----------------------Save model----------------------
+            torch.save(aG, output_path + "generator.pt")
+            torch.save(aD, output_path + "discriminator.pt")
         
 def run(run_name, args):
     wandb.init(project="training conditional WGAN")
     wandb.run.name = run_name + ' ,lr: {}, epochs: {}, size: {}'.format(args.lr, args. epochs, args.size)
     wandb.config = {'epochs' : args.epochs, 
-    'run_name' : args.run_name,
+    'run_name' : run_name,
     'npz_path' :args.npz_path,
     'image_path' : args.image_path,
     'label_path' : args.label_path,
     'img_size' : args.size,
-    'lr' : args.lr
-    }
+    'lr' : args.lr,
+    'batchsize': args.batch_size}
+    
+    #LOADING DATA
+    full_dataset = ClassificationDataset(
+        one_hot = False,
+        augmentation= 'no augment',
+        npz_path= args.npz_path,
+        image_path= args.image_path,
+        label_path= args.label_path,
+        size = args.size)
+    
+    
+    # get_cat_from_label = full_dataset._get_cat_from_label
+    num_classes = full_dataset._get_num_classes()
+    train_size = int(0.8 * len(full_dataset))
+    valid_size = len(full_dataset) - train_size
+    train_data, validation_data = torch.utils.data.random_split(full_dataset, [train_size, valid_size],
+                                                                generator=torch.Generator().manual_seed(0))
+    # X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.1, stratify=y)
+    
+    train_dataloader = DataLoader(train_data,
+                                batch_size=args.batch_size, 
+                                shuffle=True,
+                                num_workers=8)
+    
+    validation_dataloader = DataLoader(validation_data, 
+                                    batch_size=args.batch_size, 
+                                    shuffle=True,
+                                    num_workers=8)
+    
+    train(train_dataloader,
+          validation_dataloader, 
+          num_classes = num_classes,
+          batch_size= args.batch_size,
+          ACGAN_SCALE_G = 1.,
+          ACGAN_SCALE = 1.,
+          CRITIC_ITERS = 5,
+          end_iter = args.epochs,
+          lr = args.lr )
