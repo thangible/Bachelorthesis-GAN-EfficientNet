@@ -103,7 +103,7 @@ class Trainer():
             gen_loss_list.append(gen_loss)
             dis_loss_list.append(dis_loss)
             was_loss_list.append(was_loss)
-            wandb.log({'gen_loss': gen_loss, 'dis_loss': dis_loss, 'was_loss': was_los})
+            wandb.log({'gen_loss': gen_loss, 'dis_loss': dis_loss, 'was_loss': was_loss})
 
             #show samples
             labels = torch.LongTensor(np.arange(10)).to(self.device)

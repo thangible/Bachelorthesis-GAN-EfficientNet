@@ -160,10 +160,10 @@ class ReLULayer(nn.Module):
     #     return output
 
 class GoodGenerator(nn.Module):
-    def __init__(self, class_size = 128, size=256, latent_space = 100):
+    def __init__(self, num_classes = 128, size=256, latent_space = 100):
         super(GoodGenerator, self).__init__()
         self.dim = size
-        self.input_dim = class_size + latent_space
+        self.input_dim = num_classes + latent_space
         self.output_dim = self.dim*self.dim*3
 
         self.ln1 = nn.Linear(self.input_dim, 4*4*8*self.dim)
@@ -193,11 +193,11 @@ class GoodGenerator(nn.Module):
         return output
 
 class GoodDiscriminator(nn.Module):
-    def __init__(self, class_size = 128, size=256):
+    def __init__(self, num_classes = 128, size=256):
         super(GoodDiscriminator, self).__init__()
 
         self.dim = size
-        self.num_class = class_size
+        self.num_classes = num_classes
         
         self.conv1 = MyConvo2d(3, self.dim, 3, he_init = False)
         self.rb1 = ResidualBlock(self.dim, 2*self.dim, 3, resample = 'down', hw=self.dim)
@@ -206,7 +206,7 @@ class GoodDiscriminator(nn.Module):
         self.rb4 = ResidualBlock(8*self.dim, 8*self.dim, 3, resample = 'down', hw=int(self.dim/8))
         self.ln1 = nn.Linear(4*4*8*self.dim, 1)
 
-        self.ln2 = nn.Linear(4*4*8*self.dim, self.num_class)
+        self.ln2 = nn.Linear(4*4*8*self.dim, self.num_classes)
 
     def forward(self, input):
         output = input.contiguous()
