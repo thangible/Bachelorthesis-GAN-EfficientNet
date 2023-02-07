@@ -57,7 +57,7 @@ def train(train_dataloader,
         for i in range(GENER_ITERS):
             print("Generator iters: " + str(i))
             GENERATOR.zero_grad()
-            f_labels, noise = get_noise(num_classes = num_classes, batch_size=batch_size, latent_size = latent_size)
+            f_labels, noise = get_noise(device = device, num_classes = num_classes, batch_size=batch_size, latent_size = latent_size)
             noise.requires_grad_(True)
             fake_data = GENERATOR(noise)
             gen_cost, gen_aux_output = DISCRIMINATOR(fake_data)
@@ -75,7 +75,7 @@ def train(train_dataloader,
             print("Critic iter: " + str(i))
             DISCRIMINATOR.zero_grad()
             # gen fake data and load real data
-            _, noise = get_noise(num_classes = num_classes, batch_size=batch_size)
+            _, noise = get_noise(device = device, num_classes = num_classes, batch_size=batch_size)
             with torch.no_grad():
                 noisev = noise  # totally freeze G, training D
             fake_data = GENERATOR(noisev).detach()
