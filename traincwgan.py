@@ -139,7 +139,7 @@ def main(args):
     train_data, _ = torch.utils.data.random_split(full_dataset, [train_size, valid_size],
                                                                   generator=torch.Generator().manual_seed(0))    
     
-    train_dataloader = torch.utils.data.Dataloader(train_data, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers)
+    train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers)
     class_size = full_dataset._get_num_classes()
 
     gan = Trainer(data_loader = train_dataloader, 
