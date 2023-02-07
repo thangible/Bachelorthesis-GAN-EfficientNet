@@ -57,12 +57,11 @@ def train(train_dataloader,
         for i in range(GENER_ITERS):
             print("Generator iters: " + str(i))
             GENERATOR.zero_grad()
-            f_label = np.random.randint(0, num_classes, batch_size)
-            noise = get_noise(num_classes = num_classes, label = f_label, batch_size=batch_size, latent_size = latent_size)
+            f_labels, noise = get_noise(num_classes = num_classes, batch_size=batch_size, latent_size = latent_size)
             noise.requires_grad_(True)
             fake_data = GENERATOR(noise)
             gen_cost, gen_aux_output = DISCRIMINATOR(fake_data)
-            aux_label = torch.from_numpy(f_label).long()
+            aux_label = torch.from_numpy(f_labels).long()
             aux_label = aux_label.to(device)
             aux_errG = aux_criterion(gen_aux_output, aux_label).mean()
             gen_cost = -gen_cost.mean()
@@ -76,8 +75,7 @@ def train(train_dataloader,
             print("Critic iter: " + str(i))
             DISCRIMINATOR.zero_grad()
             # gen fake data and load real data
-            f_label = np.random.randint(0, num_classes, batch_size)
-            noise = get_noise(num_classes = num_classes, label = f_label, batch_size=batch_size)
+            _, noise = get_noise(num_classes = num_classes, batch_size=batch_size)
             with torch.no_grad():
                 noisev = noise  # totally freeze G, training D
             fake_data = GENERATOR(noisev).detach()
@@ -143,13 +141,12 @@ def train(train_dataloader,
                 with torch.no_grad():
                     imgs_v = imgs                
                 output_wgan, output_congan = DISCRIMINATOR(imgs_v)
-                fixed_label = []
+                fixed_labels = []
                 for c in range(batch_size):
-                    fixed_label.append(c%num_classes)
+                    fixed_labels.append(c%num_classes)
                     
-                fixed_noise = get_noise(device = device, 
-                                                        num_classes = num_classes, 
-                                                        label = fixed_label, 
+                fixed_noise = get_noise(device = device,num_classes = num_classes, 
+                                                        labels = fixed_labels, 
                                                         batch_size=batch_size)
                 
                 _dev_disc_cost = -output_wgan.mean().cpu().data.numpy()
