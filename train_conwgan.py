@@ -7,6 +7,7 @@ from torch.utils.data import DataLoader
 from segmentation_dataset import ClassificationDataset
 from conwgan_utils import *
 import wandb
+from parser_config import config_parser
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 RESTORE_MODE = False
@@ -165,19 +166,7 @@ def train(train_dataloader,
             torch.save(GENERATOR, output_path + "generator.pt")
             torch.save(DISCRIMINATOR, output_path + "discriminator.pt")
         
-def run(run_name, args):
-    # wandb.init(project="training conditional WGAN")
-    wandb.init(mode="disabled") 
-    wandb.run.name = run_name + ' ,lr: {}, epochs: {}, size: {}'.format(args.lr, args. epochs, args.size)
-    wandb.config = {'epochs' : args.epochs, 
-    'run_name' : run_name,
-    'npz_path' :args.npz_path,
-    'image_path' : args.image_path,
-    'label_path' : args.label_path,
-    'img_size' : args.size,
-    'lr' : args.lr,
-    'batch_size': args.batch_size}
-    
+def run(run_name, args):    
     #LOADING DATA
     full_dataset = ClassificationDataset(
         one_hot = False,
@@ -214,4 +203,23 @@ def run(run_name, args):
           lr = args.lr,
           image_size=args.size,
           latent_space= args.latent_space)
-          
+
+if __name__ == "__main__":
+    # wandb.init(project="training conditional WGAN")
+    parser = config_parser()
+    args = parser.parse_args()
+    run_name = 'TRAIN cWGAN'
+    wandb.init(mode="disabled") 
+    wandb.run.name = run_name + ' ,lr: {}, epochs: {}, size: {}'.format(args.lr, args. epochs, args.size)
+    wandb.config = {'epochs' : args.epochs, 
+    'run_name' : run_name,
+    'npz_path' :args.npz_path,
+    'image_path' : args.image_path,
+    'label_path' : args.label_path,
+    'img_size' : args.size,
+    'lr' : args.lr,
+    'batch_size': args.batch_size}
+    
+    run(run_name, args)
+    
+    
