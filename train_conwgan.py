@@ -15,7 +15,7 @@ RESTORE_MODE = False
 
 def train(train_dataloader,
           validation_dataloader,
-          class_size,
+          num_classes,
           output_path = './saved_models/con_wgan',
           ACGAN_SCALE_G = 1.,
           ACGAN_SCALE = 1., 
@@ -33,8 +33,8 @@ def train(train_dataloader,
         GENERATOR = torch.load(output_path + "generator.pt")
         DISCRIMINATOR = torch.load(output_path + "discriminator.pt")
     else:
-        GENERATOR = GoodGenerator(class_size = class_size, size=image_size, latent_size = latent_size)
-        DISCRIMINATOR = GoodDiscriminator(class_size = class_size, size=image_size)
+        GENERATOR = GoodGenerator(num_classes = num_classes, size=image_size, latent_size = latent_size)
+        DISCRIMINATOR = GoodDiscriminator(num_classes = num_classes, size=image_size)
         GENERATOR.apply(weights_init)
         DISCRIMINATOR.apply(weights_init)
         
@@ -57,8 +57,8 @@ def train(train_dataloader,
         for i in range(GENER_ITERS):
             print("Generator iters: " + str(i))
             GENERATOR.zero_grad()
-            f_label = np.random.randint(0, class_size, batch_size)
-            noise = get_noise(num_classes = class_size, label = f_label, batch_size=batch_size, latent_size = latent_size)
+            f_label = np.random.randint(0, num_classes, batch_size)
+            noise = get_noise(num_classes = num_classes, label = f_label, batch_size=batch_size, latent_size = latent_size)
             noise.requires_grad_(True)
             fake_data = GENERATOR(noise)
             gen_cost, gen_aux_output = DISCRIMINATOR(fake_data)
@@ -76,8 +76,8 @@ def train(train_dataloader,
             print("Critic iter: " + str(i))
             DISCRIMINATOR.zero_grad()
             # gen fake data and load real data
-            f_label = np.random.randint(0, class_size, batch_size)
-            noise = get_noise(num_classes = class_size, label = f_label, batch_size=batch_size)
+            f_label = np.random.randint(0, num_classes, batch_size)
+            noise = get_noise(num_classes = num_classes, label = f_label, batch_size=batch_size)
             with torch.no_grad():
                 noisev = noise  # totally freeze G, training D
             fake_data = GENERATOR(noisev).detach()
@@ -145,10 +145,10 @@ def train(train_dataloader,
                 output_wgan, output_congan = DISCRIMINATOR(imgs_v)
                 fixed_label = []
                 for c in range(batch_size):
-                    fixed_label.append(c%class_size)
+                    fixed_label.append(c%num_classes)
                     
                 fixed_noise = get_noise(device = device, 
-                                                        num_classes = class_size, 
+                                                        num_classes = num_classes, 
                                                         label = fixed_label, 
                                                         batch_size=batch_size)
                 
@@ -156,7 +156,7 @@ def train(train_dataloader,
                 dev_disc_costs.append(_dev_disc_cost)
                             
             gen_images = generate_image(GENERATOR, fixed_noise = fixed_noise,
-                                        num_classes=class_size, 
+                                        num_classes=num_classes, 
                                         batch_size = batch_size)
             
             torchvision.utils.save_image(gen_images, output_path + 'samples_{}.png'.format(iteration), nrow=8, padding=2)
