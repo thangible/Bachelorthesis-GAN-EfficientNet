@@ -47,14 +47,14 @@ def calc_gradient_penalty(netD, real_data, fake_data, batch_size = 64, LAMBDA = 
     gradient_penalty = ((gradients.norm(2, dim=1) - 1) ** 2).mean() * LAMBDA
     return gradient_penalty
 
-def gen_rand_noise_with_label(num_classes, label=None, batchsize = 64):
+def gen_rand_noise_with_label(num_classes, label=None, batch_size = 64):
     if label is None:
-        label = np.random.randint(0, num_classes, batchsize)
+        label = np.random.randint(0, num_classes, batch_size)
     #attach label into noise
-    noise = np.random.normal(0, 1, (batchsize, 128))
-    prefix = np.zeros((batchsize, num_classes))
-    prefix[np.arange(batchsize), label] = 1
-    noise[np.arange(batchsize), :num_classes] = prefix[np.arange(batchsize)]
+    noise = np.random.normal(0, 1, (batch_size, 128))
+    prefix = np.zeros((batch_size, num_classes))
+    prefix[np.arange(batch_size), label] = 1
+    noise[np.arange(batch_size), :num_classes] = prefix[np.arange(batch_size)]
 
     noise = torch.from_numpy(noise).float()
     noise = noise.to(device)
@@ -64,7 +64,7 @@ def gen_rand_noise_with_label(num_classes, label=None, batchsize = 64):
 def generate_image(netG, num_classes, noise=None, batch_size = 64):
     if noise is None:
         rand_label = np.random.randint(0, num_classes, batch_size)
-        noise = gen_rand_noise_with_label(rand_label, batch_size, num_classes)
+        noise = gen_rand_noise_with_label(num_classes = num_classes, label = rand_label, batch_size =  batch_size)
     with torch.no_grad():
         noisev = noise
     samples = netG(noisev)
@@ -93,8 +93,8 @@ def train(train_dataloader,
         aG = torch.load(output_path + "generator.pt")
         aD = torch.load(output_path + "discriminator.pt")
     else:
-        aG = GoodGenerator(64,64*64*3)
-        aD = GoodDiscriminator(64, num_classes)
+        aG = GoodGenerator(dim = 64, output_dim = 64*64*3)
+        aD = GoodDiscriminator(dim = 64, num_class = num_classes)
         aG.apply(weights_init)
         aD.apply(weights_init)
         
@@ -106,12 +106,11 @@ def train(train_dataloader,
     mone = one * -1
     aG = aG.to(device)
     aD = aD.to(device)
-    one = one.to(device)
-    mone = mone.to(device)
+    one = one.float().to(device)
+    mone = mone.float().to(device)
     
     
     #writer = SummaryWriter()
-    dataiter = iter(train_dataloader)
     for iteration in range(start_iter, end_iter):
         #---------------------TRAIN G------------------------
         for p in aD.parameters():
@@ -121,7 +120,7 @@ def train(train_dataloader,
             print("Generator iters: " + str(i))
             aG.zero_grad()
             f_label = np.random.randint(0, num_classes, batch_size)
-            noise = gen_rand_noise_with_label(f_label)
+            noise = gen_rand_noise_with_label(num_classes = num_classes, label = f_label, batch_size=batch_size)
             noise.requires_grad_(True)
             fake_data = aG(noise)
             gen_cost, gen_aux_output = aD(fake_data)
@@ -141,7 +140,7 @@ def train(train_dataloader,
 
             # gen fake data and load real data
             f_label = np.random.randint(0, num_classes, batch_size)
-            noise = gen_rand_noise_with_label(f_label)
+            noise = gen_rand_noise_with_label(num_classes = num_classes, label = f_label, batch_size=batch_size)
             with torch.no_grad():
                 noisev = noise  # totally freeze G, training D
             fake_data = aG(noisev).detach()
@@ -149,7 +148,7 @@ def train(train_dataloader,
             if batch is None:
                 dataiter = iter(train_dataloader)
                 batch = dataiter.next()
-            real_data = batch[0] #batch[1] contains labels
+            real_data = batch[0].float() #batch[1] contains labels
             real_data.requires_grad_(True)
             real_label = batch[1]
             #print("r_label" + str(r_label))
@@ -206,7 +205,7 @@ def train(train_dataloader,
                 fixed_label = []
                 for c in range(batch_size):
                     fixed_label.append(c%num_classes)
-                fixed_noise = gen_rand_noise_with_label(fixed_label)
+                fixed_noise = gen_rand_noise_with_label(num_classes = num_classes, label = fixed_label, batch_size=batch_size)
                 _dev_disc_cost = -D.mean().cpu().data.numpy()
                 dev_disc_costs.append(_dev_disc_cost)            
             gen_images = generate_image(aG, fixed_noise = fixed_noise,
@@ -229,12 +228,12 @@ def run(run_name, args):
     'label_path' : args.label_path,
     'img_size' : args.size,
     'lr' : args.lr,
-    'batchsize': args.batch_size}
+    'batch_size': args.batch_size}
     
     #LOADING DATA
     full_dataset = ClassificationDataset(
         one_hot = False,
-        augmentation= 'no augment',
+        augmentation= None,
         npz_path= args.npz_path,
         image_path= args.image_path,
         label_path= args.label_path,

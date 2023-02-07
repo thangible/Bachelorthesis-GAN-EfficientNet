@@ -179,7 +179,7 @@ class GoodGenerator(nn.Module):
 
     def forward(self, input):
         output = self.ln1(input.contiguous())
-        output = output.view(-1, 8*self.dim, 4, 4)
+        output = output.reshape(-1, 8*self.dim, 4, 4)
         output = self.rb1(output)
         output = self.rb2(output)
         output = self.rb3(output)
@@ -189,11 +189,11 @@ class GoodGenerator(nn.Module):
         output = self.relu(output)
         output = self.conv1(output)
         output = self.tanh(output)
-        output = output.view(-1, self.output_dim)
+        output = output.reshape(-1, self.output_dim)
         return output
 
 class GoodDiscriminator(nn.Module):
-    def __init__(self, dim=64, num_class=2):
+    def __init__(self, num_class, dim=64):
         super(GoodDiscriminator, self).__init__()
 
         self.dim = dim
@@ -210,14 +210,14 @@ class GoodDiscriminator(nn.Module):
 
     def forward(self, input):
         output = input.contiguous()
-        output = output.view(-1, 3, self.dim, self.dim)
+        output = output.reshape(-1, 3, self.dim, self.dim)
         output = self.conv1(output)
         output = self.rb1(output)
         output = self.rb2(output)
         output = self.rb3(output)
         output = self.rb4(output)
-        output = output.view(-1, 4*4*8*self.dim)
+        output = output.reshape(-1, 4*4*8*self.dim)
         output_wgan = self.ln1(output)
-        output_wgan = output_wgan.view(-1)
+        output_wgan = output_wgan.reshape(-1)
         output_congan = self.ln2(output)
         return output_wgan, output_congan
