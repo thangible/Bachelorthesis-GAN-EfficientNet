@@ -48,10 +48,10 @@ class DepthToSpace(nn.Module):
         output_depth = int(input_depth / self.block_size_sq)
         output_width = int(input_width * self.block_size)
         output_height = int(input_height * self.block_size)
-        t_1 = output.reshape(batch_size, input_height, input_width, self.block_size_sq, output_depth)
+        t_1 = output.view(batch_size, input_height, input_width, self.block_size_sq, output_depth)
         spl = t_1.split(self.block_size, 3)
-        stacks = [t_t.reshape(batch_size,input_height,output_width,output_depth) for t_t in spl]
-        output = torch.stack(stacks,0).transpose(0,1).permute(0,2,1,3,4).reshape(batch_size,output_height,output_width,output_depth)
+        stacks = [t_t.view(batch_size,input_height,output_width,output_depth) for t_t in spl]
+        output = torch.stack(stacks,0).transpose(0,1).permute(0,2,1,3,4).view(batch_size,output_height,output_width,output_depth)
         output = output.permute(0, 3, 1, 2)
         return output
 
@@ -140,33 +140,33 @@ class ReLULayer(nn.Module):
         output = self.relu(output)
         return output
 
-class FCGenerator(nn.Module):
-    def __init__(self, FC_DIM=512, output_dim = 64*64*3):
-        super(FCGenerator, self).__init__()
-        self.relulayer1 = ReLULayer(128, FC_DIM)
-        self.relulayer2 = ReLULayer(FC_DIM, FC_DIM)
-        self.relulayer3 = ReLULayer(FC_DIM, FC_DIM)
-        self.relulayer4 = ReLULayer(FC_DIM, FC_DIM)
-        self.linear = nn.Linear(FC_DIM, output_dim)
-        self.tanh = nn.Tanh()
+# class FCGenerator(nn.Module):
+#     def __init__(self, FC_DIM=512, output_dim = 64*64*3):
+#         super(FCGenerator, self).__init__()
+#         self.relulayer1 = ReLULayer(128, FC_DIM)
+#         self.relulayer2 = ReLULayer(FC_DIM, FC_DIM)
+#         self.relulayer3 = ReLULayer(FC_DIM, FC_DIM)
+#         self.relulayer4 = ReLULayer(FC_DIM, FC_DIM)
+#         self.linear = nn.Linear(FC_DIM, output_dim)
+#         self.tanh = nn.Tanh()
 
-    def forward(self, input):
-        output = self.relulayer1(input)
-        output = self.relulayer2(output)
-        output = self.relulayer3(output)
-        output = self.relulayer4(output)
-        output = self.linear(output)
-        output = self.tanh(output)
-        return output
+    # def forward(self, input):
+    #     output = self.relulayer1(input)
+    #     output = self.relulayer2(output)
+    #     output = self.relulayer3(output)
+    #     output = self.relulayer4(output)
+    #     output = self.linear(output)
+    #     output = self.tanh(output)
+    #     return output
 
 class GoodGenerator(nn.Module):
-    def __init__(self, dim=64, output_dim=64*64*3):
+    def __init__(self, class_size = 128, size=256, latent_space = 100):
         super(GoodGenerator, self).__init__()
+        self.dim = size
+        self.input_dim = class_size + latent_space
+        self.output_dim = self.dim*self.dim*3
 
-        self.dim = dim
-        self.output_dim = output_dim
-
-        self.ln1 = nn.Linear(128, 4*4*8*self.dim)
+        self.ln1 = nn.Linear(self.input_dim, 4*4*8*self.dim)
         self.rb1 = ResidualBlock(8*self.dim, 8*self.dim, 3, resample = 'up')
         self.rb2 = ResidualBlock(8*self.dim, 4*self.dim, 3, resample = 'up')
         self.rb3 = ResidualBlock(4*self.dim, 2*self.dim, 3, resample = 'up')
@@ -179,7 +179,7 @@ class GoodGenerator(nn.Module):
 
     def forward(self, input):
         output = self.ln1(input.contiguous())
-        output = output.reshape(-1, 8*self.dim, 4, 4)
+        output = output.view(-1, 8*self.dim, 4, 4)
         output = self.rb1(output)
         output = self.rb2(output)
         output = self.rb3(output)
@@ -189,15 +189,15 @@ class GoodGenerator(nn.Module):
         output = self.relu(output)
         output = self.conv1(output)
         output = self.tanh(output)
-        output = output.reshape(-1, self.output_dim)
+        output = output.view(-1, self.output_dim)
         return output
 
 class GoodDiscriminator(nn.Module):
-    def __init__(self, num_class, dim=64):
+    def __init__(self, class_size = 128, size=256):
         super(GoodDiscriminator, self).__init__()
 
-        self.dim = dim
-        self.num_class = num_class
+        self.dim = size
+        self.num_class = class_size
         
         self.conv1 = MyConvo2d(3, self.dim, 3, he_init = False)
         self.rb1 = ResidualBlock(self.dim, 2*self.dim, 3, resample = 'down', hw=self.dim)
@@ -210,14 +210,14 @@ class GoodDiscriminator(nn.Module):
 
     def forward(self, input):
         output = input.contiguous()
-        output = output.reshape(-1, 3, self.dim, self.dim)
+        output = output.view(-1, 3, self.dim, self.dim)
         output = self.conv1(output)
         output = self.rb1(output)
         output = self.rb2(output)
         output = self.rb3(output)
         output = self.rb4(output)
-        output = output.reshape(-1, 4*4*8*self.dim)
+        output = output.view(-1, 4*4*8*self.dim)
         output_wgan = self.ln1(output)
-        output_wgan = output_wgan.reshape(-1)
+        output_wgan = output_wgan.view(-1)
         output_congan = self.ln2(output)
         return output_wgan, output_congan

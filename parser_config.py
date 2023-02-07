@@ -17,7 +17,7 @@ def config_parser():
     parser.add_argument("--augment", type=str, default=None,help='augment method') 
     parser.add_argument("--batch_size", type=int,default=64,help='batchsize')
     parser.add_argument('--latent_size', type=int, default=100, help='size of gaussian noise vector')
-    parser.add_argument('--num_workers', type=int, default=0, help='workers simultaneously putting data into RAM')
+    parser.add_argument('--num_workers', type=int, default=8, help='workers simultaneously putting data into RAM')
     parser.add_argument('--saved_image_directory', type=str, default='data/saved_images', help='directory to where image samples will be saved')
     parser.add_argument('--saved_model_directory', type=str, default='saved_models', help='directory to where model weights will be saved')
     parser.add_argument('--embedding_dim', type=int, default=10, help='size of embedding vector')
