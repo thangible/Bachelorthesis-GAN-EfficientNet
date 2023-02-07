@@ -12,7 +12,7 @@ class Trainer():
     def __init__(self, data_loader, class_size, embedding_dim, batch_size, latent_size=100, lr=0.0002, num_workers=1):
 
         # define device
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         #get dataset from directory. If not present, download to directory
         self.data_loader = data_loader
         self.batch_size = batch_size
@@ -21,10 +21,10 @@ class Trainer():
         #define models
         self.latent_size = latent_size
 
-        self.dis = Discriminator(class_size, embedding_dim).to(device)
-        self.gen = Generator(latent_size,class_size, embedding_dim).to(device)
+        self.dis = Discriminator(class_size, embedding_dim).to(self.device)
+        self.gen = Generator(latent_size,class_size, embedding_dim).to(self.device)
 
-        self.loss_func = nn.BCELoss().to(device)
+        self.loss_func = nn.BCELoss().to(self.device)
 
         self.optimizer_d = optim.RMSprop(self.dis.parameters(), lr=lr)
         self.optimizer_g = optim.RMSprop(self.gen.parameters(), lr=lr)
