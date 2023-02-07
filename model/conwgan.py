@@ -160,10 +160,10 @@ class ReLULayer(nn.Module):
     #     return output
 
 class GoodGenerator(nn.Module):
-    def __init__(self, num_classes = 128, size=256, latent_space = 100):
+    def __init__(self, num_classes = 128, size=256, latent_size = 100):
         super(GoodGenerator, self).__init__()
         self.dim = size
-        self.input_dim = num_classes + latent_space
+        self.input_dim = num_classes + latent_size
         self.output_dim = self.dim*self.dim*3
 
         self.ln1 = nn.Linear(self.input_dim, 4*4*8*self.dim)
