@@ -40,13 +40,13 @@ def calc_gradient_penalty(device, discriminator, real_data, fake_data, batch_siz
     gradient_penalty = ((gradients.norm(2, dim=1) - 1) ** 2).mean() * LAMBDA
     return gradient_penalty
 
-def get_noise(device, num_classes, labels=None, batch_size = 64, latent_dim =100):
+def get_noise(device, num_classes, labels=None, batch_size = 64, latent_size =100):
     if labels is None:
         labels = np.random.randint(0, num_classes, batch_size)
     #attach label into noise
     labels = torch.randint(low=0,high=num_classes,size=([batch_size]))
     one_hot_labels =  torch.nn.functional.one_hot(labels, num_classes = num_classes )
-    random_latent_vectors = torch.normal(0, 3, size = (batch_size, latent_dim))
+    random_latent_vectors = torch.normal(0, 3, size = (batch_size, latent_size))
     noise = torch.cat([random_latent_vectors, one_hot_labels], axis=1)
     noise = noise.to(device)
     return noise

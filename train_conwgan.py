@@ -26,14 +26,14 @@ def train(train_dataloader,
           end_iter = 1,
           lr = 1e-4,
           image_size = 256,
-          latent_space = 100# How many iterations to train for
+          latent_size = 100# How many iterations to train for
     ) -> None:
     
     if RESTORE_MODE:
         GENERATOR = torch.load(output_path + "generator.pt")
         DISCRIMINATOR = torch.load(output_path + "discriminator.pt")
     else:
-        GENERATOR = GoodGenerator(class_size = class_size, size=image_size, latent_space = latent_space)
+        GENERATOR = GoodGenerator(class_size = class_size, size=image_size, latent_size = latent_size)
         DISCRIMINATOR = GoodDiscriminator(class_size = class_size, size=image_size)
         GENERATOR.apply(weights_init)
         DISCRIMINATOR.apply(weights_init)
@@ -58,7 +58,7 @@ def train(train_dataloader,
             print("Generator iters: " + str(i))
             GENERATOR.zero_grad()
             f_label = np.random.randint(0, class_size, batch_size)
-            noise = get_noise(num_classes = class_size, label = f_label, batch_size=batch_size)
+            noise = get_noise(num_classes = class_size, label = f_label, batch_size=batch_size, latent_size = latent_size)
             noise.requires_grad_(True)
             fake_data = GENERATOR(noise)
             gen_cost, gen_aux_output = DISCRIMINATOR(fake_data)
@@ -202,7 +202,7 @@ def run(run_name, args):
           end_iter = args.epochs,
           lr = args.lr,
           image_size=args.size,
-          latent_space= args.latent_space)
+          latent_size= args.latent_size)
 
 if __name__ == "__main__":
     # wandb.init(project="training conditional WGAN")
