@@ -61,9 +61,8 @@ def train(train_dataloader,
             noise.requires_grad_(True)
             fake_data = GENERATOR(noise)
             gen_cost, gen_aux_output = DISCRIMINATOR(fake_data)
-            aux_label = torch.from_numpy(f_labels).long()
-            aux_label = aux_label.to(device)
-            aux_errG = aux_criterion(gen_aux_output, aux_label).mean()
+            f_labels.to(device)
+            aux_errG = aux_criterion(gen_aux_output, f_labels).mean()
             gen_cost = -gen_cost.mean()
             g_cost = ACGAN_SCALE_G*aux_errG + gen_cost
             g_cost.backward()
