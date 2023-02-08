@@ -1,6 +1,8 @@
 label_path = "/data/ISEAD/segmentation_masks/manual_annotated_data.csv"
 image_path = "/data/ISEAD/segmentation_masks/JPEGImages"
 size = 500
-epochs = 100
+epochs = 1
 lr = 1e-3
 batch_size = 64
+model_dim = 8
+latent_size = 100

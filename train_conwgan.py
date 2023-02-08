@@ -26,15 +26,16 @@ def train(train_dataloader,
           end_iter = 1,
           lr = 1e-4,
           image_size = 256,
-          latent_size = 100# How many iterations to train for
+          latent_size = 100,
+          model_dim = 8# How many iterations to train for
     ) -> None:
     
     if RESTORE_MODE:
         GENERATOR = torch.load(output_path + "generator.pt")
         DISCRIMINATOR = torch.load(output_path + "discriminator.pt")
     else:
-        GENERATOR = GoodGenerator(num_classes = num_classes, size=image_size, latent_size = latent_size)
-        DISCRIMINATOR = GoodDiscriminator(num_classes = num_classes, size=image_size)
+        GENERATOR = GoodGenerator(num_classes = num_classes, size=image_size, latent_size = latent_size, dim = model_dim)
+        DISCRIMINATOR = GoodDiscriminator(num_classes = num_classes, size=image_size, dim = model_dim)
         GENERATOR.apply(weights_init)
         DISCRIMINATOR.apply(weights_init)
         
@@ -195,7 +196,8 @@ def run(run_name, args):
           end_iter = args.epochs,
           lr = args.lr,
           image_size=args.size,
-          latent_size= args.latent_size)
+          latent_size= args.latent_size,
+          model_dim= args.model_dim)
 
 if __name__ == "__main__":
     # wandb.init(project="training conditional WGAN")
@@ -212,7 +214,8 @@ if __name__ == "__main__":
     'label_path' : args.label_path,
     'img_size' : args.size,
     'lr' : args.lr,
-    'batch_size': args.batch_size}
+    'batch_size': args.batch_size,
+    'model_dim': args.model_dim}
     
     run(run_name, args)
     
