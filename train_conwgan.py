@@ -58,7 +58,6 @@ def train(train_dataloader,
             p.requires_grad_(False)  # freeze D
         gen_cost = None
         for i in range(GENER_ITERS):
-            print("Generator iters: " + str(i))
             GENERATOR.zero_grad()
             f_labels, noise = get_noise(device = device, num_classes = num_classes, batch_size=batch_size, latent_size = latent_size)
             noise.requires_grad_(True)
@@ -74,7 +73,6 @@ def train(train_dataloader,
         for p in DISCRIMINATOR.parameters():  # reset requires_grad
             p.requires_grad_(True)  # they are set to False below in training G
         for i in range(CRITIC_ITERS):
-            print("Critic iter: " + str(i))
             DISCRIMINATOR.zero_grad()
             # gen fake data and load real data
             _, noise = get_noise(device = device, num_classes = num_classes, batch_size=batch_size)
