@@ -62,6 +62,7 @@ def train(train_dataloader,
             fake_data = GENERATOR(noise)
             gen_cost, gen_aux_output = DISCRIMINATOR(fake_data)
             f_labels.to(device)
+            gen_aux_output.to(device)
             aux_errG = aux_criterion(gen_aux_output, f_labels).mean()
             gen_cost = -gen_cost.mean()
             g_cost = ACGAN_SCALE_G*aux_errG + gen_cost
