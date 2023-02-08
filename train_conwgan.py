@@ -132,9 +132,9 @@ def train(train_dataloader,
                     
         wandb.log({'gen_cost': gen_cost, 'epoch': iteration})
     #----------------------Generate images-----------------
-        wandb.log({'train_disc_cost': disc_cost.cpu().data.numpy()})
-        wandb.log({'train_gen_cost': gen_cost.cpu().data.numpy()})
-        wandb.log({'wasserstein_distance': w_dist.cpu().data.numpy()})
+        wandb.log({'train_disc_cost': disc_cost.cpu().data.numpy(), 'epoch': iteration})
+        wandb.log({'train_gen_cost': gen_cost.cpu().data.numpy(), 'epoch': iteration})
+        wandb.log({'wasserstein_distance': w_dist.cpu().data.numpy(), 'epoch': iteration})
         if iteration % 200==0:
             dev_disc_costs = []
             for images, _, _ in validation_dataloader:
@@ -154,9 +154,9 @@ def train(train_dataloader,
                                         num_classes=num_classes, 
                                         batch_size = batch_size)
             
-            grid_images = wandb.Image(gen_images, caption="Top: Output, Bottom: Input")
+            grid_images = wandb.Image(gen_images, caption="Fake images")
 
-            wandb.log({'fake image': grid_images, 'epoch': iteration} )
+            wandb.log({'fake image': grid_images} )
     #----------------------Save model----------------------
             torch.save(GENERATOR, output_path + "generator.pt")
             torch.save(DISCRIMINATOR, output_path + "discriminator.pt")
