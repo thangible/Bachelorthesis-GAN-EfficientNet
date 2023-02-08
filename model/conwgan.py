@@ -194,22 +194,22 @@ class GoodGenerator(nn.Module):
         output = output.flatten().view(-1, self.output_dim)
         return output
 
-from pdb import set_trace as bp
 class GoodDiscriminator(nn.Module):
     def __init__(self, num_classes = 128, size= 256, dim = 32):
         super(GoodDiscriminator, self).__init__()
         self.img_size = size
         self.dim = dim
         self.num_classes = num_classes
+        self.output_size = (size//8)*(size//8)*8*dim
         
         self.conv1 = MyConvo2d(3, self.dim, 3, he_init = False)
         self.rb1 = ResidualBlock(self.dim, 2*self.dim, 3, resample = 'down', hw=self.img_size)
-        self.rb2 = ResidualBlock(2*self.dim, 4*self.dim, 3, resample = 'down', hw=int(self.img_size/2))
-        self.rb3 = ResidualBlock(4*self.dim, 8*self.dim, 3, resample = 'down', hw=int(self.img_size/4))
-        self.rb4 = ResidualBlock(8*self.dim, 8*self.dim, 3, resample = 'down', hw=int(self.img_size/8))
-        self.ln1 = nn.Linear(4*4*8*self.dim, 1)
+        self.rb2 = ResidualBlock(2*self.dim, 4*self.dim, 3, resample = 'down', hw=int(self.img_size//2))
+        self.rb3 = ResidualBlock(4*self.dim, 8*self.dim, 3, resample = 'down', hw=int(self.img_size//4))
+        self.rb4 = ResidualBlock(8*self.dim, 8*self.dim, 3, resample = 'down', hw=int(self.img_size//8))
+        self.ln1 = nn.Linear(self.output_size, 1)
 
-        self.ln2 = nn.Linear(4*4*8*self.dim, self.num_classes)
+        self.ln2 = nn.Linear(self.output_size, self.num_classes)
 
     def forward(self, input):
         output = input.contiguous()
@@ -218,8 +218,11 @@ class GoodDiscriminator(nn.Module):
         output = self.conv1(output)
         output = self.rb1(output)
         output = self.rb2(output)
+        # print(output.shape)
         output = self.rb3(output)
-        output = output.view(-1, 4*4*8*self.dim)
+        # print(output.shape)
+        output = output.flatten().view(-1, self.output_size)
+        # print(output.shape)
         output_wgan = self.ln1(output)
         output_wgan = output_wgan.view(-1)
         output_congan = self.ln2(output)
