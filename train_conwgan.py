@@ -154,7 +154,6 @@ def train(train_dataloader,
                                         num_classes=num_classes, 
                                         batch_size = batch_size)
             
-            torchvision.utils.save_image(gen_images, output_path + 'samples_{}.png'.format(iteration), nrow=8, padding=2)
             grid_images = torchvision.utils.make_grid(gen_images, nrow=8, padding=2)
             wandb.log({'fake image': grid_images, 'epoch': iteration} )
     #----------------------Save model----------------------
