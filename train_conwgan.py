@@ -140,7 +140,8 @@ def train(train_dataloader,
                 imgs = torch.Tensor(images[0])
                 imgs = imgs.to(device)
                 with torch.no_grad():
-                    imgs_v = imgs                
+                    imgs_v = imgs    
+                print(imgs_v.shape)            
                 output_wgan, output_congan = DISCRIMINATOR(imgs_v)
                 fixed_labels = []
                 for c in range(batch_size):
