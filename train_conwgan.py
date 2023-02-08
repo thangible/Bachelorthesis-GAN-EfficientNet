@@ -143,7 +143,7 @@ def train(train_dataloader,
                     imgs_v = imgs    
                 print(imgs_v.shape)            
                 output_wgan, output_congan = DISCRIMINATOR(imgs_v)
-                fixed_labels = torch.range(0, batch_size, dtype=int)
+                fixed_labels = torch.arange(0, batch_size, dtype=int)
                 fixed_noise = get_noise(device = device,num_classes = num_classes, 
                                                         labels = fixed_labels, 
                                                         batch_size=batch_size)
