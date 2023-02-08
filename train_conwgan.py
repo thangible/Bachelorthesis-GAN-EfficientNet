@@ -150,7 +150,7 @@ def train(train_dataloader,
                 _dev_disc_cost = -output_wgan.mean().cpu().data.numpy()
                 dev_disc_costs.append(_dev_disc_cost)
                             
-            gen_images = generate_image(GENERATOR, fixed_noise = fixed_noise,
+            gen_images = generate_image(GENERATOR, noise = fixed_noise,
                                         num_classes=num_classes, 
                                         batch_size = batch_size)
             
