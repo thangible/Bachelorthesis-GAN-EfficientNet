@@ -48,6 +48,7 @@ def get_noise(device, num_classes, labels=None, batch_size = 64, latent_size =10
     random_latent_vectors = torch.normal(0, 3, size = (batch_size, latent_size))
     noise = torch.cat([random_latent_vectors, one_hot_labels], axis=1)
     noise = noise.to(device)
+    labels = labels.to(device)
     return labels, noise
 
 def generate_image(generator, num_classes, noise=None, batch_size = 64):
