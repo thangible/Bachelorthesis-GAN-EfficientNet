@@ -7,6 +7,7 @@ from torch.utils.data import DataLoader
 from segmentation_dataset import ClassificationDataset
 from conwgan_utils import *
 import wandb
+from tqdm import tqdm #te quiero demasio. taqadum
 from parser_config import config_parser
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -51,7 +52,7 @@ def train(train_dataloader,
     mone = mone.float().to(device)
     
     
-    for iteration in range(start_iter, end_iter):
+    for iteration in tqdm(range(start_iter, end_iter)):
         #---------------------TRAIN G------------------------
         for p in DISCRIMINATOR.parameters():
             p.requires_grad_(False)  # freeze D
@@ -127,7 +128,8 @@ def train(train_dataloader,
                     layer1 = body_model.conv
                     xyz = layer1.weight.data.clone()
                     tensor = xyz.cpu()
-                    img_to_log = torchvision.utils.make_grid(tensor, nrow=8,padding=1)
+                    conv_img_to_log = torchvision.utils.make_grid(tensor, nrow=8,padding=1)
+                    img_to_log = wandb.Image(conv_img_to_log, caption="conv1")
                     wandb.log({'D/conv1': img_to_log, 'epoch': iteration} )
                     
         wandb.log({'gen_cost': gen_cost, 'epoch': iteration})
