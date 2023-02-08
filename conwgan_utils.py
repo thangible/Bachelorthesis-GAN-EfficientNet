@@ -56,7 +56,7 @@ def generate_image(generator, num_classes, noise=None, batch_size = 64):
         noise = get_noise(num_classes = num_classes,  batch_size =  batch_size)[1]
     with torch.no_grad():
         noisev = noise
-    samples = generator(noisev)
-    samples = samples.view(batch_size, 3, generator.img_size, generator.img_size)
-    normalized_samples = torch.round(samples*127.5 + 127.5).to(int)
+        samples = generator(noisev)
+        samples = samples.view(batch_size, 3, generator.img_size, generator.img_size)
+        normalized_samples = torch.round(samples*127.5 + 127.5).int()
     return normalized_samples
