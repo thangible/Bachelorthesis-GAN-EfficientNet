@@ -58,5 +58,5 @@ def generate_image(generator, num_classes, noise=None, batch_size = 64):
         noisev = noise
         samples = generator(noisev)
         samples = samples.view(batch_size, 3, generator.img_size, generator.img_size)
-        normalized_samples = torch.round(samples*127.5 + 127.5).int()
+        normalized_samples = torch.round(samples*127.5 + 127.5).float()
     return normalized_samples

@@ -135,14 +135,14 @@ def train(train_dataloader,
         wandb.log({'train_disc_cost': disc_cost.cpu().data.numpy(), 'epoch': iteration})
         wandb.log({'train_gen_cost': gen_cost.cpu().data.numpy(), 'epoch': iteration})
         wandb.log({'wasserstein_distance': w_dist.cpu().data.numpy(), 'epoch': iteration})
-        if iteration % 200==0:
+        if iteration % 100==0:
             dev_disc_costs = []
             for images, _, _ in validation_dataloader:
                 imgs = torch.Tensor(images[0])
                 imgs = imgs.to(device)
                 with torch.no_grad():
                     imgs_v = imgs       
-                output_wgan, output_congan = DISCRIMINATOR(imgs_v)
+                output_wgan, _ = DISCRIMINATOR(imgs_v)
                 fixed_labels = torch.arange(0, batch_size, dtype=int)
                 _, fixed_noise = get_noise(device = device,num_classes = num_classes, 
                                                         labels = fixed_labels, 
@@ -155,7 +155,6 @@ def train(train_dataloader,
                                         batch_size = batch_size)
             log_imgs = torchvision.utils.make_grid(gen_images)
             grid_images = wandb.Image(log_imgs, caption="Fake images")
-
             wandb.log({'fake image': grid_images} )
     #----------------------Save model----------------------
             torch.save(GENERATOR, output_path + "generator.pt")
