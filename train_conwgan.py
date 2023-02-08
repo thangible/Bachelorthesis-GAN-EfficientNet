@@ -136,7 +136,7 @@ def train(train_dataloader,
         wandb.log({'wasserstein_distance': w_dist.cpu().data.numpy()})
         if iteration % 200==0:
             dev_disc_costs = []
-            for _, images, cats in validation_dataloader:
+            for images, _, _ in validation_dataloader:
                 imgs = torch.Tensor(images[0])
                 imgs = imgs.to(device)
                 with torch.no_grad():
