@@ -169,7 +169,7 @@ def run(run_name, args):
         image_path= args.image_path,
         label_path= args.label_path,
         size = args.size,
-        normalize= True)
+        normalize = True)
     
     
     # get_cat_from_label = full_dataset._get_cat_from_label
