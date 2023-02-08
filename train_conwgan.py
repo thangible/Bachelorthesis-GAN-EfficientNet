@@ -153,8 +153,8 @@ def train(train_dataloader,
             gen_images = generate_image(GENERATOR, noise = fixed_noise,
                                         num_classes=num_classes, 
                                         batch_size = batch_size)
-            
-            grid_images = wandb.Image(gen_images, caption="Fake images")
+            log_imgs = torchvision.utils.make_grid(gen_images)
+            grid_images = wandb.Image(log_imgs, caption="Fake images")
 
             wandb.log({'fake image': grid_images} )
     #----------------------Save model----------------------
