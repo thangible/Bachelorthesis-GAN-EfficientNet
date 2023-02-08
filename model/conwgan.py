@@ -179,7 +179,6 @@ class GoodGenerator(nn.Module):
         self.tanh = nn.Tanh()
 
     def forward(self, input):
-        batch_size = input.shape[0]
         output = self.ln1(input.contiguous())
         output = output.flatten().view(-1, 8*self.dim, self.img_size//16, self.img_size//16)
         output = self.rb1(output)
