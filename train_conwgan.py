@@ -143,14 +143,10 @@ def train(train_dataloader,
                     imgs_v = imgs    
                 print(imgs_v.shape)            
                 output_wgan, output_congan = DISCRIMINATOR(imgs_v)
-                fixed_labels = []
-                for c in range(batch_size):
-                    fixed_labels.append(c%num_classes)
-                    
+                fixed_labels = torch.range(0, batch_size, dtype=int)
                 fixed_noise = get_noise(device = device,num_classes = num_classes, 
                                                         labels = fixed_labels, 
                                                         batch_size=batch_size)
-                
                 _dev_disc_cost = -output_wgan.mean().cpu().data.numpy()
                 dev_disc_costs.append(_dev_disc_cost)
                             
