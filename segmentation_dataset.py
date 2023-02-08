@@ -104,7 +104,7 @@ class ClassificationDataset(Dataset):
         if self._size != image.shape[0]:
             image = self._resize(image)
         
-        return image
+        return image.float()
         
     def _get_label(self, index: int):
         label = self._labels[index]
