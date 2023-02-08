@@ -160,13 +160,14 @@ class ReLULayer(nn.Module):
     #     return output
 
 class GoodGenerator(nn.Module):
-    def __init__(self, num_classes = 128, size=256, latent_size = 100):
+    def __init__(self, num_classes = 128, dim = 32, size=256, latent_size = 100):
         super(GoodGenerator, self).__init__()
-        self.dim = size
+        self.dim = dim
+        self.img_size = size
         self.input_dim = num_classes + latent_size
-        self.output_dim = self.dim*self.dim*3
+        self.output_dim = size*size*3
 
-        self.ln1 = nn.Linear(self.input_dim, 4*4*8*self.dim)
+        self.ln1 = nn.Linear(self.input_dim, self.img_size*self.img_size*self.dim//32)
         self.rb1 = ResidualBlock(8*self.dim, 8*self.dim, 3, resample = 'up')
         self.rb2 = ResidualBlock(8*self.dim, 4*self.dim, 3, resample = 'up')
         self.rb3 = ResidualBlock(4*self.dim, 2*self.dim, 3, resample = 'up')
@@ -178,8 +179,9 @@ class GoodGenerator(nn.Module):
         self.tanh = nn.Tanh()
 
     def forward(self, input):
+        batch_size = input.shape[0]
         output = self.ln1(input.contiguous())
-        output = output.view(-1, 8*self.dim, 4, 4)
+        output = output.flatten().view(-1, 8*self.dim, self.img_size//16, self.img_size//16)
         output = self.rb1(output)
         output = self.rb2(output)
         output = self.rb3(output)
@@ -189,7 +191,7 @@ class GoodGenerator(nn.Module):
         output = self.relu(output)
         output = self.conv1(output)
         output = self.tanh(output)
-        output = output.view(-1, self.output_dim)
+        output = output.flatten().view(-1, self.output_dim)
         return output
 
 class GoodDiscriminator(nn.Module):
