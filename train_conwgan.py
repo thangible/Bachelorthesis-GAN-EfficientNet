@@ -135,7 +135,7 @@ def train(train_dataloader,
         wandb.log({'train_disc_cost': disc_cost.cpu().data.numpy(), 'epoch': iteration})
         wandb.log({'train_gen_cost': gen_cost.cpu().data.numpy(), 'epoch': iteration})
         wandb.log({'wasserstein_distance': w_dist.cpu().data.numpy(), 'epoch': iteration})
-        if iteration % 100==0:
+        if iteration % 50==0:
             dev_disc_costs = []
             for images, _, _ in validation_dataloader:
                 imgs = torch.Tensor(images[0])
@@ -155,7 +155,7 @@ def train(train_dataloader,
                                         batch_size = batch_size)
             log_imgs = torchvision.utils.make_grid(gen_images)
             grid_images = wandb.Image(log_imgs, caption="Fake images")
-            wandb.log({'fake image': grid_images} )
+            wandb.log({"fake_image": grid_images} )
     #----------------------Save model----------------------
             torch.save(GENERATOR, output_path + "generator.pt")
             torch.save(DISCRIMINATOR, output_path + "discriminator.pt")
@@ -168,7 +168,8 @@ def run(run_name, args):
         npz_path= args.npz_path,
         image_path= args.image_path,
         label_path= args.label_path,
-        size = args.size)
+        size = args.size,
+        normalize= True)
     
     
     # get_cat_from_label = full_dataset._get_cat_from_label
