@@ -140,8 +140,7 @@ def train(train_dataloader,
                 imgs = torch.Tensor(images[0])
                 imgs = imgs.to(device)
                 with torch.no_grad():
-                    imgs_v = imgs    
-                print(imgs_v.shape)            
+                    imgs_v = imgs       
                 output_wgan, output_congan = DISCRIMINATOR(imgs_v)
                 fixed_labels = torch.arange(0, batch_size, dtype=int)
                 _, fixed_noise = get_noise(device = device,num_classes = num_classes, 
@@ -203,7 +202,8 @@ if __name__ == "__main__":
     parser = config_parser()
     args = parser.parse_args()
     run_name = 'TRAIN cWGAN'
-    wandb.init(mode="disabled") 
+    # wandb.init(mode="disabled") 
+    wandb.init() 
     wandb.run.name = run_name + ' ,lr: {}, epochs: {}, size: {}'.format(args.lr, args. epochs, args.size)
     wandb.config = {'epochs' : args.epochs, 
     'run_name' : run_name,
