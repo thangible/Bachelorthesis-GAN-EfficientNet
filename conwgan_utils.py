@@ -21,10 +21,10 @@ def weights_init(m):
 def calc_gradient_penalty(device, discriminator, real_data, fake_data, batch_size = 64, LAMBDA = 10):
     alpha = torch.rand(batch_size, 1)
     alpha = alpha.expand(batch_size, int(real_data.nelement()/batch_size)).contiguous()
-    alpha = alpha.view(batch_size, 3, discriminator.dim, discriminator.dim)
+    alpha = alpha.view(batch_size, 3, discriminator.img_size, discriminator.img_size)
     alpha = alpha.to(device)
 
-    fake_data = fake_data.view(batch_size, 3, discriminator.dim, discriminator.dim)
+    fake_data = fake_data.view(batch_size, 3, discriminator.img_size, discriminator.img_size)
     interpolates = alpha * real_data.detach() + ((1 - alpha) * fake_data.detach())
 
     interpolates = interpolates.to(device)
@@ -53,10 +53,10 @@ def get_noise(device, num_classes, labels=None, batch_size = 64, latent_size =10
 
 def generate_image(generator, num_classes, noise=None, batch_size = 64):
     if noise is None:
-        noise = get_noise(num_classes = num_classes,  batch_size =  batch_size)
+        noise = get_noise(num_classes = num_classes,  batch_size =  batch_size)[1]
     with torch.no_grad():
         noisev = noise
     samples = generator(noisev)
-    samples = samples.view(batch_size, 3, generator.dim, generator.dim)
+    samples = samples.view(batch_size, 3, generator.img_size, generator.img_size)
     normalized_samples = samples*127.5 + 127.5
     return normalized_samples
