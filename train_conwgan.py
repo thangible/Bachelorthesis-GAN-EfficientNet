@@ -44,10 +44,11 @@ def train(train_dataloader,
 
     one = torch.FloatTensor([1])
     mone = one * -1
-    GENERATOR = GENERATOR.to(device)
-    DISCRIMINATOR = DISCRIMINATOR.to(device)
+    GENERATOR.to(device)
+    DISCRIMINATOR.to(device)
     one = one.float().to(device)
     mone = mone.float().to(device)
+    
     
     for iteration in range(start_iter, end_iter):
         #---------------------TRAIN G------------------------
@@ -61,7 +62,6 @@ def train(train_dataloader,
             noise.requires_grad_(True)
             fake_data = GENERATOR(noise)
             gen_cost, gen_aux_output = DISCRIMINATOR(fake_data)
-            f_labels.to(device)
             gen_aux_output.to(device)
             aux_errG = aux_criterion(gen_aux_output, f_labels).mean()
             gen_cost = -gen_cost.mean()
@@ -79,6 +79,7 @@ def train(train_dataloader,
             with torch.no_grad():
                 noisev = noise  # totally freeze G, training D
             fake_data = GENERATOR(noisev).detach()
+            dataiter = iter(train_dataloader)
             batch = next(dataiter, None)
             if batch is None:
                 dataiter = iter(train_dataloader)
