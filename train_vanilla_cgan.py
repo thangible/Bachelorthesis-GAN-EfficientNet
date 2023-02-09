@@ -86,7 +86,7 @@ def train(data_loader,
 def run(run_name, args):    
     #LOADING DATA
     full_dataset = ClassificationDataset(
-        one_hot = False,
+        one_hot = True,
         augmentation= None,
         npz_path= args.npz_path,
         image_path= args.image_path,
