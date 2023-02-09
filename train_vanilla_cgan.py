@@ -119,7 +119,7 @@ if __name__ == "__main__":
     # wandb.init(project="training conditional WGAN")
     parser = config_parser()
     args = parser.parse_args()
-    run_name = 'TRAIN cWGAN'
+    run_name = 'TRAIN cGAN'
     # wandb.init(mode="disabled") 
     wandb.init(project="train_vanilla_cgan") 
     wandb.run.name = run_name + ' ,lr: {}, epochs: {}, size: {}'.format(args.lr, args. epochs, args.size)
