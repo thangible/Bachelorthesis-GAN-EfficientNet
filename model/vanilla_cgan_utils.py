@@ -5,14 +5,13 @@ import numpy as np
 def discriminator_train_step(device, batch_size, discriminator, generator, d_optimizer, criterion, real_images, labels, class_num, z_size):
     
     # Init gradient 
-    ones = Variable(torch.ones(batch_size)).to(device)
-    zeros = Variable(torch.zeros(batch_size)).to(device)
+    
+
     d_optimizer.zero_grad()
     # Disciminating real images
     real_validity = discriminator(real_images, labels)    
-    print('real_validity.shape', real_validity.shape)
-    print('ones', ones.shape)
     # Calculating discrimination loss (real images)
+    ones = Variable(torch.ones(real_validity.shape)).to(device)
     real_loss = criterion(real_validity, ones)    
     # Building z
     z = Variable(torch.randn(batch_size, z_size)).to(device)    
@@ -23,6 +22,7 @@ def discriminator_train_step(device, batch_size, discriminator, generator, d_opt
     # Disciminating fake images
     fake_validity = discriminator(fake_images, fake_labels)    
     # Calculating discrimination loss (fake images)
+    zeros = Variable(torch.zeros(fake_validity.shape)).to(device)
     fake_loss = criterion(fake_validity, zeros )
     # Sum two losses
     d_loss = real_loss + fake_loss    
@@ -33,7 +33,6 @@ def discriminator_train_step(device, batch_size, discriminator, generator, d_opt
     return d_loss.data
 
 def generator_train_step(device, batch_size, discriminator, generator, g_optimizer, criterion, class_num, z_size):
-    ones = Variable(torch.ones(batch_size)).to(device)
     # Init gradient
     g_optimizer.zero_grad()    
     # Building z
@@ -45,6 +44,7 @@ def generator_train_step(device, batch_size, discriminator, generator, g_optimiz
     # Disciminating fake images
     validity = discriminator(fake_images, fake_labels)
     # Calculating discrimination loss (fake images)
+    ones = Variable(torch.ones(validity.shape)).to(device)
     g_loss = criterion(validity, ones)
     # Backword propagation
     g_loss.backward()
