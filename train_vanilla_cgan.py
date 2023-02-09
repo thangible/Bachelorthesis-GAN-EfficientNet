@@ -5,11 +5,11 @@ import torchvision
 from model.conwgan import *
 from model.vanilla_cgan_utils import *
 from torch.utils.data import DataLoader
-from EfficientNet.preprocess_dataset import ClassificationDataset
-from EfficientNet.model.conwgan_utils import *
+from preprocess_dataset import ClassificationDataset
+from model.conwgan_utils import *
 import wandb
 from tqdm import tqdm #te quiero demasio. taqadum
-from EfficientNet.config.parser_config import config_parser
+from config.parser_config import config_parser
 from torch.autograd import Variable
 
 

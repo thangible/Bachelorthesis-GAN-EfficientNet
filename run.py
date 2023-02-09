@@ -1,5 +1,5 @@
 import model.classifier as classifier
-from  EfficientNet.config.parser_config import config_parser
+from  config.parser_config import config_parser
 import albumentations as A
 
 
