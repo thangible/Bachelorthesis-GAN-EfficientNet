@@ -11,7 +11,7 @@ from tqdm import tqdm #te quiero demasio. taqadum
 from parser_config import config_parser
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-RESTORE_MODE = False
+RESTORE_MODE = True
 
 
 def train(train_dataloader,
