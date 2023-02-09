@@ -22,7 +22,9 @@ def discriminator_train_step(device, batch_size, discriminator, generator, d_opt
     fake_validity = discriminator(fake_images, fake_labels)    
     print('fake_validity shape: ', fake_validity.shape)
     # Calculating discrimination loss (fake images)
-    fake_loss = criterion(fake_validity, Variable(torch.zeros(batch_size)).to(device))    
+    zeros = Variable(torch.zeros(batch_size)).to(device)
+    print('zeros shape', zeros.shape)
+    fake_loss = criterion(fake_validity, zeros )
     # Sum two losses
     d_loss = real_loss + fake_loss    
     # Backword propagation
