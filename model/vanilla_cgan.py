@@ -61,7 +61,9 @@ class Discriminator(nn.Module):
         # Concat image & label
         x = torch.cat([x, c], 1)        
         # Discriminator out
-        out = self.model(x)        
+        out = self.model(x) 
+        print('outshape': out.shape)
+        out = out.view(-1, self.class_num)       
         return out.squeeze()
 
 
