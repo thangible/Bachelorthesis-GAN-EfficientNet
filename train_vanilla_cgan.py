@@ -93,7 +93,7 @@ def run(run_name, args):
     num_classes = full_dataset._get_num_classes()
     train_size = int(0.8 * len(full_dataset))
     valid_size = len(full_dataset) - train_size
-    train_data, validation_data = torch.utils.data.random_split(full_dataset, [train_size, valid_size],
+    train_data, _ = torch.utils.data.random_split(full_dataset, [train_size, valid_size],
                                                                 generator=torch.Generator().manual_seed(0))
     # X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.1, stratify=y)
     
@@ -107,7 +107,7 @@ def run(run_name, args):
     #                                 shuffle=True,
     #                                 num_workers=args.num_workers)
     
-    train(dataloader = train_dataloader,
+    train(data_loader = train_dataloader,
           class_num = num_classes,
           batch_size= args.batch_size,
           end_iter = args.epochs,
@@ -122,7 +122,7 @@ if __name__ == "__main__":
     run_name = 'TRAIN cGAN'
     # wandb.init(mode="disabled") 
     wandb.init(project="train_vanilla_cgan") 
-    wandb.run.name = run_name + ' ,lr: {}, epochs: {}, size: {}'.format(args.lr, args. epochs, args.size)
+    wandb.run.name = run_name + ', lr: {}, epochs: {}, size: {}'.format(args.lr, args. epochs, args.size)
     wandb.config = {'epochs' : args.epochs, 
     'run_name' : run_name,
     'npz_path' :args.npz_path,
