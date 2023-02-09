@@ -10,6 +10,8 @@ def discriminator_train_step(device, batch_size, discriminator, generator, d_opt
     d_optimizer.zero_grad()
     # Disciminating real images
     real_validity = discriminator(real_images, labels)    
+    print('real_validity.shape', real_validity.shape)
+    print('ones', ones.shape)
     # Calculating discrimination loss (real images)
     real_loss = criterion(real_validity, ones)    
     # Building z
