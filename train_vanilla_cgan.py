@@ -110,7 +110,7 @@ def run(run_name, args):
     train(data_loader = train_dataloader,
           class_num = num_classes,
           batch_size= args.batch_size,
-          end_iter = args.epochs,
+          epochs = args.epochs,
           lr = args.lr,
           img_size =args.size,
           z_size = args.latent_size)
