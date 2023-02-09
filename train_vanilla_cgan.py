@@ -20,6 +20,7 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 def train(data_loader,
           img_size,
           class_num,
+          get_cat_from_label,
           epochs = 1,
           lr = 1e-3,
           batch_size = 64,
@@ -35,7 +36,7 @@ def train(data_loader,
 
     for epoch in range(epochs):
         print('Starting epoch {}...'.format(epoch+1))
-        for images, label, cat in tqdm(data_loader, total=len(data_loader)):        
+        for images, labels, cat in tqdm(data_loader, total=len(data_loader)):        
             # Train data
             real_images = Variable(images).to(device)
             labels = Variable(labels).to(device)        
@@ -72,6 +73,11 @@ def train(data_loader,
             labels = Variable(torch.LongTensor(np.arange(batch_size))).to(device)
             # Generating images
             sample_images = generator(z, labels).unsqueeze(1).data.cpu()
+            for i in range(sample_images.shape[0]):
+                cat = get_cat_from_label(i)
+                img = sample_images[i,...]
+                g_single_img = wandb.Image(img, caption= cat)
+                wandb.log({'generated images': g_single_img, 'epoch': epoch} )
             # Show images
             grid = torchvision.utils.make_grid(sample_images, nrow=3, normalize=True).permute(1,2,0).numpy()
             img_to_log = wandb.Image(grid, caption="conv1")
@@ -102,6 +108,8 @@ def run(run_name, args):
                                 shuffle=True,
                                 num_workers=args.num_workers)
     
+    get_cat_from_label = full_dataset._get_cat_from_label
+    
     # validation_dataloader = DataLoader(validation_data, 
     #                                 batch_size=args.batch_size, 
     #                                 shuffle=True,
@@ -113,7 +121,8 @@ def run(run_name, args):
           epochs = args.epochs,
           lr = args.lr,
           img_size =args.size,
-          z_size = args.latent_size)
+          z_size = args.latent_size,
+          get_cat_from_label = get_cat_from_label)
 
 if __name__ == "__main__":
     # wandb.init(project="training conditional WGAN")
