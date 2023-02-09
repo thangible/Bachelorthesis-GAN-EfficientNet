@@ -16,14 +16,10 @@ def discriminator_train_step(device, batch_size, discriminator, generator, d_opt
     fake_labels = Variable(torch.LongTensor(np.random.randint(0, class_num, batch_size))).to(device)    
     # Generating fake images
     fake_images = generator(z, fake_labels)    
-    print('fake img shape: ', fake_labels.shape)
-    print('fake_labels shape: ', fake_images.shape)
     # Disciminating fake images
     fake_validity = discriminator(fake_images, fake_labels)    
-    print('fake_validity shape: ', fake_validity.shape)
     # Calculating discrimination loss (fake images)
     zeros = Variable(torch.zeros(batch_size)).to(device)
-    print('zeros shape', zeros.shape)
     fake_loss = criterion(fake_validity, zeros )
     # Sum two losses
     d_loss = real_loss + fake_loss    
@@ -45,7 +41,8 @@ def generator_train_step(device, batch_size, discriminator, generator, g_optimiz
     # Disciminating fake images
     validity = discriminator(fake_images, fake_labels)
     # Calculating discrimination loss (fake images)
-    g_loss = criterion(validity, Variable(torch.ones(batch_size)).to(device))
+    ones = Variable(torch.ones(batch_size)).to(device)
+    g_loss = criterion(validity, ones)
     # Backword propagation
     g_loss.backward()
     #  Optimizing generator
