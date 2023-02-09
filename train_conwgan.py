@@ -4,11 +4,11 @@ import torch
 import torchvision
 from model.conwgan import *
 from torch.utils.data import DataLoader
-from segmentation_dataset import ClassificationDataset
-from conwgan_utils import *
+from EfficientNet.preprocess_dataset import ClassificationDataset
+from EfficientNet.model.conwgan_utils import *
 import wandb
 from tqdm import tqdm #te quiero demasio. taqadum
-from parser_config import config_parser
+from EfficientNet.config.parser_config import config_parser
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 RESTORE_MODE = True

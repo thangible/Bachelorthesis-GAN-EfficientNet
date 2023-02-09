@@ -2,10 +2,10 @@ import torch
 import numpy as np 
 import time
 import torch.optim as optim
-from parser_config import config_parser
+from EfficientNet.config.parser_config import config_parser
 from model.cwgan import *
 import wandb
-from segmentation_dataset import ClassificationDataset
+from EfficientNet.preprocess_dataset import ClassificationDataset
 
 class Trainer():
 

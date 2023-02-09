@@ -7,11 +7,11 @@ import wandb
 from torchmetrics.classification import MulticlassAccuracy, MulticlassF1Score, MulticlassPrecision, MulticlassRecall
 from torchvision import transforms, utils
 from torch.utils.data import DataLoader
-from parser_config import config_parser
+from EfficientNet.config.parser_config import config_parser
 import albumentations as A
 from augmentation import  aug_transform
 from tqdm import tqdm #te quiero demasio. taqadum
-from segmentation_dataset import ClassificationDataset
+from EfficientNet.preprocess_dataset import ClassificationDataset
 from pathlib import Path
 
 def main(
