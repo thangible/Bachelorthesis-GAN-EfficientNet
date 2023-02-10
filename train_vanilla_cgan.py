@@ -11,6 +11,7 @@ import wandb
 from tqdm import tqdm #te quiero demasio. taqadum
 from config.parser_config import config_parser
 from torch.autograd import Variable
+import os
 
 
 
@@ -26,14 +27,32 @@ def train(data_loader,
           batch_size = 64,
           generator_layer_size = [256, 512, 1024],
           discriminator_layer_size = [1024, 512, 256],
-          z_size = 100):
+          z_size = 100,
+          log_dir = './saved_models/vanilla_gan'):
+    
+    d_path = os.path.join(log_dir,'discriminator.pt')
+    g_path = os.path.join(log_dir,'generator.pt')
+    
     generator = Generator(generator_layer_size, z_size, img_size, class_num).to(device)
     discriminator = Discriminator(discriminator_layer_size, img_size, class_num).to(device)
     criterion = nn.BCELoss()
     g_optimizer = torch.optim.Adam(generator.parameters(), lr=lr)
     d_optimizer = torch.optim.Adam(discriminator.parameters(), lr=lr)
-
-
+    
+    if os.path.exists(g_path):
+        g_checkpoint = torch.load(g_path)
+        generator.load_state_dict(g_checkpoint['model_state_dict'])
+        generator.load_state_dict(g_checkpoint['optimizer_state_dict'])
+        epoch = g_checkpoint['epoch']
+        g_loss = g_checkpoint['loss']
+    
+    if os.path.exists(d_path):
+        d_checkpoint = torch.load(d_path)
+        discriminator.load_state_dict(d_checkpoint['model_state_dict'])
+        discriminator.load_state_dict(d_checkpoint['optimizer_state_dict'])
+        epoch = d_checkpoint['epoch']
+        d_loss = d_checkpoint['loss']
+    
     for epoch in range(epochs):
         print('Starting epoch {}...'.format(epoch+1))
         for images, labels, cat in tqdm(data_loader, total=len(data_loader)):        
@@ -83,6 +102,25 @@ def train(data_loader,
             grid = torchvision.utils.make_grid(sample_images)
             img_to_log = wandb.Image(grid, caption="conv1")
             wandb.log({'sample images': img_to_log, 'epoch': epoch} )
+            #SAVE MODEL
+            
+            torch.save(
+                {'epoch': epoch,
+                'model_state_dict': generator.state_dict(),
+                'optimizer_state_dict': g_optimizer.state_dict(),
+                'loss': g_loss}, g_path)
+            
+            
+            torch.save({
+                'epoch': epoch,
+                'model_state_dict': discriminator.state_dict(),
+                'optimizer_state_dict': d_optimizer.state_dict(),
+                'loss': d_loss}, d_path)
+            
+            wandb.save(g_path)
+            wandb.save(d_path)
+
+    
 
 def run(run_name, args):    
     #LOADING DATA
@@ -131,7 +169,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     run_name = 'TRAIN cGAN'
     # wandb.init(mode="disabled") 
-    wandb.init(project="train_vanilla_cgan", mode = 'disabled') 
+    wandb.init(project="train_vanilla_cgan") 
     wandb.run.name = run_name + ', lr: {}, epochs: {}, size: {}'.format(args.lr, args. epochs, args.size)
     wandb.config = {'epochs' : args.epochs, 
     'run_name' : run_name,
