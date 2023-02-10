@@ -85,7 +85,8 @@ def train(data_loader,
                                           z_size= z_size)    
         # Set generator eval
         generator.eval()    
-        wandb.log({'g_loss': g_loss, 'd_loss': d_loss, 'epoch' : epoch})
+        wandb.log({'g_loss': g_loss, 'epoch' : epoch})
+        wandb.log({'d_loss': d_loss, 'epoch' : epoch})
         # Building z 
         if epoch % 50 == 0:
             num_of_pics = 64
