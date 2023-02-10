@@ -68,9 +68,10 @@ def train(data_loader,
         wandb.log({'g_loss': g_loss, 'd_loss': d_loss, 'epoch' : epoch})
         # Building z 
         if epoch % 50 == 0:
-            z = Variable(torch.randn(class_num-1, z_size)).to(device)
+            num_of_pics = 64
+            z = Variable(torch.randn(num_of_pics, z_size)).to(device)  
             # Labels 0 ~ 8
-            labels = Variable(torch.LongTensor(np.arange(batch_size))).to(device)
+            labels = Variable(torch.LongTensor(np.arange(num_of_pics))).to(device)
             # Generating images
             sample_images = generator(z, labels).unsqueeze(1).data.cpu()
             for i in range(sample_images.shape[0]):
