@@ -22,6 +22,7 @@ def train(data_loader,
           img_size,
           class_num,
           get_cat_from_label,
+          run_name,
           epochs = 1,
           lr = 1e-3,
           batch_size = 64,
@@ -30,8 +31,8 @@ def train(data_loader,
           z_size = 100,
           log_dir = './saved_models/vanilla_gan'):
     
-    d_path = os.path.join(log_dir,'discriminator.pt')
-    g_path = os.path.join(log_dir,'generator.pt')
+    d_path = os.path.join(log_dir,'discriminator_{}.pt'.format(run_name))
+    g_path = os.path.join(log_dir,'generator_{}.pt'.format(run_name))
     
     generator = Generator(generator_layer_size, z_size, img_size, class_num).to(device)
     discriminator = Discriminator(discriminator_layer_size, img_size, class_num).to(device)
@@ -161,7 +162,8 @@ def run(run_name, args):
           lr = args.lr,
           img_size =args.size,
           z_size = args.latent_size,
-          get_cat_from_label = get_cat_from_label)
+          get_cat_from_label = get_cat_from_label,
+          run_name = run_name)
 
 if __name__ == "__main__":
     # wandb.init(project="training conditional WGAN")
