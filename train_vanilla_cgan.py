@@ -73,7 +73,7 @@ def train(data_loader,
             # Labels 0 ~ 8
             labels = Variable(torch.LongTensor(np.arange(num_of_pics))).to(device)
             # Generating images
-            sample_images = generator(z, labels).unsqueeze(1).data.cpu()
+            sample_images = generator(z, labels).view(-1,3,256,256)
             for i in range(sample_images.shape[0]):
                 cat = get_cat_from_label(i)
                 img = sample_images[i,...]
