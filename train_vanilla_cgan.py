@@ -23,7 +23,7 @@ def train(data_loader,
           class_num,
           get_cat_from_label,
           run_name,
-          model_dim,
+          model_dim = None,
           epochs = 1,
           lr = 1e-3,
           batch_size = 64,
@@ -168,7 +168,8 @@ def run(run_name, args):
           img_size =args.size,
           z_size = args.latent_size,
           get_cat_from_label = get_cat_from_label,
-          run_name = run_name)
+          run_name = run_name,
+          model_dim = args.model_dim)
 
 if __name__ == "__main__":
     # wandb.init(project="training conditional WGAN")
