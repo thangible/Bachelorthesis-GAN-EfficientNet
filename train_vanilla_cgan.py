@@ -86,7 +86,9 @@ def train(data_loader,
                                           g_optimizer = g_optimizer, 
                                           criterion = criterion,
                                           class_num = class_num,
-                                          z_size= z_size)    
+                                          z_size= z_size)  
+            print('g_loss', g_loss, 'd_loss', d_loss)
+              
         # Set generator eval
         generator.eval()    
         wandb.log({'g_loss': g_loss, 'epoch' : epoch})
@@ -98,7 +100,8 @@ def train(data_loader,
             # Labels 0 ~ 8
             labels = Variable(torch.LongTensor(np.arange(num_of_pics))).to(device)
             # Generating images
-            sample_images = generator(z, labels).view(-1,3,256,256)
+            sample_images_raw = generator(z, labels).view(-1,3,256,256)
+            sample_images = torch.round(sample_images_raw*127.5 + 127.5).float()
             for i in range(sample_images.shape[0]):
                 cat = get_cat_from_label(i)
                 img = sample_images[i,...]
@@ -106,7 +109,7 @@ def train(data_loader,
                 wandb.log({'generated images': g_single_img, 'epoch': epoch} )
             # Show images
             grid = torchvision.utils.make_grid(sample_images)
-            img_to_log = wandb.Image(grid, caption="conv1")
+            img_to_log = wandb.Image(grid, caption="samples")
             wandb.log({'sample images': img_to_log, 'epoch': epoch} )
             #SAVE MODEL
             
