@@ -47,16 +47,16 @@ def train(data_loader,
     if os.path.exists(g_path):
         g_checkpoint = torch.load(g_path)
         generator.load_state_dict(g_checkpoint['model_state_dict']).to(device)
-        g_optimizer.load_state_dict(g_checkpoint['optimizer_state_dict']).to(device)
-        epoch = g_checkpoint['epoch'].to(device)
-        g_loss = g_checkpoint['loss'].to(device)
+        g_optimizer.load_state_dict(g_checkpoint['optimizer_state_dict'])
+        epoch = g_checkpoint['epoch']
+        g_loss = g_checkpoint['loss']
     
     if os.path.exists(d_path):
         d_checkpoint = torch.load(d_path)
         discriminator.load_state_dict(d_checkpoint['model_state_dict']).to(device)
-        d_optimizer.load_state_dict(d_checkpoint['optimizer_state_dict']).to(device)
-        epoch = d_checkpoint['epoch'].to(device)
-        d_loss = d_checkpoint['loss'].to(device)
+        d_optimizer.load_state_dict(d_checkpoint['optimizer_state_dict'])
+        epoch = d_checkpoint['epoch']
+        d_loss = d_checkpoint['loss']
     
     for epoch in range(epochs):
         print('Starting epoch {}...'.format(epoch+1))
