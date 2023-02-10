@@ -40,23 +40,23 @@ def train(data_loader,
     
     generator = Generator(generator_layer_size, z_size, img_size, class_num).to(device)
     discriminator = Discriminator(discriminator_layer_size, img_size, class_num).to(device)
-    criterion = nn.BCELoss()
-    g_optimizer = torch.optim.Adam(generator.parameters(), lr=lr)
-    d_optimizer = torch.optim.Adam(discriminator.parameters(), lr=lr)
+    criterion = nn.BCELoss().to(device)
+    g_optimizer = torch.optim.Adam(generator.parameters(), lr=lr).to(device)
+    d_optimizer = torch.optim.Adam(discriminator.parameters(), lr=lr).to(device)
     
     if os.path.exists(g_path):
         g_checkpoint = torch.load(g_path)
-        generator.load_state_dict(g_checkpoint['model_state_dict'])
-        g_optimizer.load_state_dict(g_checkpoint['optimizer_state_dict'])
-        epoch = g_checkpoint['epoch']
-        g_loss = g_checkpoint['loss']
+        generator.load_state_dict(g_checkpoint['model_state_dict']).to(device)
+        g_optimizer.load_state_dict(g_checkpoint['optimizer_state_dict']).to(device)
+        epoch = g_checkpoint['epoch'].to(device)
+        g_loss = g_checkpoint['loss'].to(device)
     
     if os.path.exists(d_path):
         d_checkpoint = torch.load(d_path)
-        discriminator.load_state_dict(d_checkpoint['model_state_dict'])
-        d_optimizer.load_state_dict(d_checkpoint['optimizer_state_dict'])
-        epoch = d_checkpoint['epoch']
-        d_loss = d_checkpoint['loss']
+        discriminator.load_state_dict(d_checkpoint['model_state_dict']).to(device)
+        d_optimizer.load_state_dict(d_checkpoint['optimizer_state_dict']).to(device)
+        epoch = d_checkpoint['epoch'].to(device)
+        d_loss = d_checkpoint['loss'].to(device)
     
     for epoch in range(epochs):
         print('Starting epoch {}...'.format(epoch+1))
