@@ -23,6 +23,7 @@ def train(data_loader,
           class_num,
           get_cat_from_label,
           run_name,
+          model_dim,
           epochs = 1,
           lr = 1e-3,
           batch_size = 64,
@@ -31,6 +32,9 @@ def train(data_loader,
           z_size = 100,
           log_dir = './saved_models/vanilla_gan'):
     
+    if model_dim:
+        generator_layer_size = [model_dim, model_dim*2, model_dim*4]
+        generator_layer_size = [model_dim*4, model_dim*2, model_dim]
     d_path = os.path.join(log_dir,'discriminator_{}.pt'.format(run_name))
     g_path = os.path.join(log_dir,'generator_{}.pt'.format(run_name))
     
