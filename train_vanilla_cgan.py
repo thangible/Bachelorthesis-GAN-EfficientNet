@@ -175,10 +175,10 @@ if __name__ == "__main__":
     # wandb.init(project="training conditional WGAN")
     parser = config_parser()
     args = parser.parse_args()
-    run_name = 'TRAIN cGAN'
+    run_name = 'TRAIN cGAN'+ ', dim:{}, lr: {}, epochs: {}, size: {}'.format(args.model_dim, args.lr, args. epochs, args.size)
     # wandb.init(mode="disabled") 
     wandb.init(project="train_vanilla_cgan") 
-    wandb.run.name = run_name + ', lr: {}, epochs: {}, size: {}'.format(args.lr, args. epochs, args.size)
+    wandb.run.name = run_name
     wandb.config = {'epochs' : args.epochs, 
     'run_name' : run_name,
     'npz_path' :args.npz_path,
