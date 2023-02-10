@@ -87,7 +87,7 @@ def train(data_loader,
                                           criterion = criterion,
                                           class_num = class_num,
                                           z_size= z_size)  
-            print('g_loss', g_loss, 'd_loss', d_loss)
+            print('g_loss', g_loss.cpu(), 'd_loss', d_loss.cpu())
               
         # Set generator eval
         generator.eval()    
