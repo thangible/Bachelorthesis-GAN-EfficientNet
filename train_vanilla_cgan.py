@@ -80,7 +80,7 @@ def train(data_loader,
                 g_single_img = wandb.Image(img, caption= cat)
                 wandb.log({'generated images': g_single_img, 'epoch': epoch} )
             # Show images
-            grid = torchvision.utils.make_grid(sample_images, nrow=3, normalize=True).permute(1,2,0).numpy()
+            grid = torchvision.utils.make_grid(sample_images, nrow=8,padding=1)
             img_to_log = wandb.Image(grid, caption="conv1")
             wandb.log({'sample images': img_to_log, 'epoch': epoch} )
 
