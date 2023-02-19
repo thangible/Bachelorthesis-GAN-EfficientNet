@@ -1,6 +1,7 @@
 import model.classifier as classifier
 from  config.parser_config import config_parser
 import albumentations as A
+import numpy as np
 
 
 
@@ -30,9 +31,30 @@ if __name__ == "__main__":
     Normalize = A.Normalize(p=1)
     RandomConstrast = A.RandomContrast(limit=(-0.9, 0.9),p=1)
     ToSepia = A.ToSepia(p=1)
+    Cutout = A.CoarseDropout(p =1, max_height=50, max_width=50)
+    GridDropout = A.GridDropout(p=1)
     
-    augmentations = [CropThenCLAHE, GaussNoise, Normalize, ChannelShuffle, RandomConstrast, ToSepia]
-    run_names = ['CropThenCLAHE','GaussNoise','Normalize', 'ChannelShuffle', 'RandomConstrast limit = 0.9','ToSepia']
+    def RandAugment(image, n = 3, m = 10):
+    # Define a set of possible image transformations
+        transforms_list = [CenterCrop,
+                           GaussNoise,
+                           Sharpen,
+                           Cutout,
+                           ChannelShuffle,
+                           ColorJitter,
+                           Solarize,
+                           ToSepia]
+        # Apply a random sequence of n transformations with magnitude m
+        aug = A.Compose([transforms_list[i] for i in np.random.choice(len(transforms_list), n)])
+        aug_image = aug(image = image.astype(np.uint8))['image']
+        output = {}
+        output['image'] = aug_image
+         #FOR VISUALISATION
+        output['augs'] = [str(x).partition('(')[0] for x in aug]
+        return output
+    
+    augmentations = [Cutout, GridDropout, RandAugment]
+    run_names = ['Cutout', ' GridDropout', 'RandAugment']
     
     
     for i in range(len(augmentations)):
