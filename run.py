@@ -53,8 +53,14 @@ if __name__ == "__main__":
         output['augs'] = [str(x).partition('(')[0] for x in aug]
         return output
     
-    augmentations = [Cutout, GridDropout, RandAugment]
-    run_names = ['Cutout', ' GridDropout', 'RandAugment']
+    #HYPERPARAMETER TUNING
+    ClaheClip4Tile20 = A.CLAHE(clip_limit = 4, tile_grid_size=(20, 20), p=1.0)
+    ClaheClip12Tile8 = A.CLAHE(clip_limit = 12, tile_grid_size=(8, 8), p=1.0)
+    SharpenAlpha510Lightness510 = A.Sharpen(alpha=(0.5, 1), lightness = (0.2, 0.5), p=1.0)
+    SharpenAlpha25Lightness810 = A.Sharpen(alpha=(0.5, 1), lightness = (0.8, 1) ,p=1.0)
+    
+    augmentations = [Cutout, GridDropout, RandAugment, ClaheClip4Tile20, ClaheClip12Tile8, SharpenAlpha510Lightness510, SharpenAlpha25Lightness810]
+    run_names = ['Cutout', ' GridDropout', 'RandAugment','ClaheClip4Tile20', 'ClaheClip12Tile8', 'SharpenAlpha510Lightness510', 'SharpenAlpha25Lightness810'] 
     
     
     for i in range(len(augmentations)):
