@@ -11,7 +11,7 @@ from config.parser_config import config_parser
 import albumentations as A
 from augmentation import  aug_transform
 from tqdm import tqdm #te quiero demasio. taqadum
-from preprocess_dataset import ClassificationDataset
+from classification_dataset import ClassificationDataset
 from pathlib import Path
 
 def main(

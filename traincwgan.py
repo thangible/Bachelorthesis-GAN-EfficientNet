@@ -5,7 +5,7 @@ import torch.optim as optim
 from config.parser_config import config_parser
 from model.cwgan import *
 import wandb
-from preprocess_dataset import ClassificationDataset
+from classification_dataset import ClassificationDataset
 
 class Trainer():
 

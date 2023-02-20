@@ -5,7 +5,7 @@ import torchvision
 from model.conwgan import *
 from model.vanilla_cgan_utils import *
 from torch.utils.data import DataLoader
-from preprocess_dataset import ClassificationDataset
+from classification_dataset import ClassificationDataset
 from model.conwgan_utils import *
 import wandb
 from tqdm import tqdm #te quiero demasio. taqadum
