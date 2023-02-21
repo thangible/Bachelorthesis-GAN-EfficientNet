@@ -59,10 +59,39 @@ if __name__ == "__main__":
     SharpenAlpha510Lightness510 = A.Sharpen(alpha=(0.5, 1), lightness = (0.2, 0.5), p=1.0)
     SharpenAlpha25Lightness810 = A.Sharpen(alpha=(0.5, 1), lightness = (0.8, 1) ,p=1.0)
     
-    augmentations = [Cutout, GridDropout, RandAugment, ClaheClip4Tile20, ClaheClip12Tile8, SharpenAlpha510Lightness510, SharpenAlpha25Lightness810]
-    run_names = ['Cutout', ' GridDropout', 'RandAugment','ClaheClip4Tile20', 'ClaheClip12Tile8', 'SharpenAlpha510Lightness510', 'SharpenAlpha25Lightness810'] 
     
     
-    for i in range(len(augmentations)):
-        classifier.single_run(args, given_augment = augmentations[i], run_name = run_names[i])
+    
+    ColoJitter_HP = {}
+    for i in range(4):
+        brightness = np.random.uniform(0.2, 0.8)
+        contrast = np.random.uniform(0.2, 0.8)
+        saturation = np.random.uniform(0.2, 0.8)
+        hue = np.random.uniform(0.2, 0.8)
+        key = 'ColorJitter brightness:{:.2f}, contrast:{:.2f}, saturation:{:.2f}, hue:{:.2f}'.format(brightness, contrast, saturation, hue)
+        ColoJitter_HP[key](A.ColorJitter(brightness=brightness, contrast=contrast, saturation=saturation, hue=hue , p=1.0))
+    
+    Solarize_HP = {}
+    for threshold in  [64, 128, 192]:
+        key = 'Solarize Threshold: {}'.format(threshold)
+        Solarize_HP[key] = A.Solarize(threshold = threshold, p = 1.0)
+        
+    Normalize_HP  = {}
+    for i in range(4):
+        means = tuple(np.random.normal(loc = 0.4, scale = 0.5, size =(3)))
+        stds = tuple(np.random.uniform(0.1, 0.8, size = (3)))
+        key = 'Normalize means: ({:.3f}, {:.3f}, {:.3f}), std = {:.3f}, {:.3f}, {:.3f})'.format(*means,*stds)
+        Solarize_HP[key] = A.Normalize(mean = means, std = stds, p = 1.0)
+        
+    
+    HP = {**ColoJitter_HP, **Solarize_HP,**Normalize_HP}
+    # augmentations = ['no augment']
+    # run_names = ['New Baseline - No Augment'] 
+    
+    
+    # for i in range(len(augmentations)):
+    #     classifier.single_run(args, given_augment = augmentations[i], run_name = run_names[i])
+    for run_name in HP:
+        augmentation = HP[run_name]
+        classifier.single_run(args, given_augment = augmentation, run_name = run_name)
         

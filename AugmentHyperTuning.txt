@@ -1,0 +1,18 @@
+#ColorJitter - random search
+brightness - 0.2 -> 0.8
+constrast - 0.2 -> 0.8
+saturation - 0.2 -> 0.8
+hue - 0.2 -> 0.8
+
+Solarize 64 - 128 - 192
+
+Normalize 
+means = tuple(np.random.normal(loc = 0.4, scale = 0.5, size =(3)))
+stds = tuple(np.random.uniform(0.1, 0.8, size = (3)))
+
+Gaussian noise
+
+CLAHE
+Sharpen
+
+Posterize
