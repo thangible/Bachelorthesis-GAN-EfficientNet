@@ -41,11 +41,12 @@ def main(
     #LOADING DATA
     full_dataset = ClassificationDataset(
         one_hot = False,
-        augmentation= None,
-        npz_path= args.npz_path,
-        image_path= args.image_path,
-        label_path= args.label_path,
-        size = args.size)
+        augmentation= augment,
+        npz_path= npz_path,
+        image_path= image_path,
+        label_path= label_path,
+        size = img_size)
+    
 
     get_cat_from_label = full_dataset._get_cat_from_label
     num_classes = full_dataset._get_num_classes()
@@ -57,14 +58,14 @@ def main(
     
 
     train_dataloader = DataLoader(train_data,
-                                  batch_size=args.batch_size, 
+                                  batch_size=batch_size, 
                                   shuffle=True,
-                                  num_workers=args.num_workers)
+                                  num_workers=num_workers)
     
     validation_dataloader = DataLoader(validation_data, 
-                                       batch_size=args.batch_size, 
+                                       batch_size=batch_size, 
                                        shuffle=True,
-                                       num_workers=args.num_workers)
+                                       num_workers=num_workers)
     
         
     # define device
