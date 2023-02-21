@@ -69,7 +69,7 @@ if __name__ == "__main__":
         saturation = np.random.uniform(0.2, 0.8)
         hue = np.random.uniform(0.2, 0.8)
         key = 'ColorJitter brightness:{:.2f}, contrast:{:.2f}, saturation:{:.2f}, hue:{:.2f}'.format(brightness, contrast, saturation, hue)
-        ColoJitter_HP[key](A.ColorJitter(brightness=brightness, contrast=contrast, saturation=saturation, hue=hue , p=1.0))
+        ColoJitter_HP[key] = A.ColorJitter(brightness=brightness, contrast=contrast, saturation=saturation, hue=hue , p=1.0)
     
     Solarize_HP = {}
     for threshold in  [64, 128, 192]:
