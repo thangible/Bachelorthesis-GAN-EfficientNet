@@ -13,7 +13,6 @@ from augmentation import  aug_transform
 from tqdm import tqdm #te quiero demasio. taqadum
 from classification_dataset import ClassificationDataset
 from pathlib import Path
-from dataset_utils import stratified_split
 
 def main(
     run_name: str,
@@ -41,32 +40,32 @@ def main(
     #LOADING DATA
     full_dataset = ClassificationDataset(
         one_hot = False,
-        augmentation= None,
-        npz_path= args.npz_path,
-        image_path= args.image_path,
-        label_path= args.label_path,
-        size = args.size)
-
+        augmentation= augment,
+        npz_path= npz_path,
+        image_path= image_path,
+        label_path= label_path,
+        size = img_size)
+    
+    
     get_cat_from_label = full_dataset._get_cat_from_label
     num_classes = full_dataset._get_num_classes()
+    train_size = int(0.8 * len(full_dataset))
+    valid_size = len(full_dataset) - train_size
+    train_data, validation_data = torch.utils.data.random_split(full_dataset, [train_size, valid_size],
+                                                                  generator=torch.Generator().manual_seed(0))
+    # X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.1, stratify=y)
     
-    train_data, train_set_labels, validation_data, test_set_labels = stratified_split(dataset = full_dataset, 
-                                                                                            labels = full_dataset._labels,
-                                                                                            fraction = 0.8,
-                                                                                            random_state=0)
     
-
     train_dataloader = DataLoader(train_data,
-                                  batch_size=args.batch_size, 
+                                  batch_size=batch_size, 
                                   shuffle=True,
-                                  num_workers=args.num_workers)
+                                  num_workers=num_workers)
     
     validation_dataloader = DataLoader(validation_data, 
-                                       batch_size=args.batch_size, 
+                                       batch_size=batch_size, 
                                        shuffle=True,
-                                       num_workers=args.num_workers)
+                                       num_workers=num_workers)
     
-        
     # define device
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
@@ -176,34 +175,17 @@ def valid_classifier(model, num_classes, loader_test, device, is_last_epoch_flag
         recall_top3.update(preds=predicted, target=label)
         
         
-        EDGE_CATS = ["Gryllteiste",
-                    "Offshore Windpark",
-                    "Schnatterente",
-                    "Buchfink",
-                    "unbestimmte Larusmöwe",
-                    "Fischereigerät (Schwimmer)",
-                    "Schmarotzer/Spatel/Falkenraubmöwe",
-                    "Brandgans",
-                    "Wasserlinie mit Großalgen",
-                    "unbestimmte Art",
-                    "Feldlerche",
-                    "Schmarotzerraubmöwe",
-                    "Grosser Brachvogel",
-                    "Öl",
-                    "unbestimmte Raubmöwe",
-                    "Turmfalke",
-                    "Trauerseeschwalbe",
-                    "Front ",
-                    "unbestimmter Schwan",
-                    "Boot (unbestimmtes kleines Boot)",
-                    "Tonne",
-                    "Sperber",
-                    "Kiebitzregenpfeifer",
-                    "Skua",
-                    "Graugans",
-                    "Freizeitfahrzeug ",
-                    "unbestimmte Krähe"]
-        
+        EDGE_CATS = ['unbestimmter Lappentaucher', 
+                     'Weißschnauzendelphin', 
+                     'Knutt', 
+                     'Mauersegler', 
+                     'Graureiher',
+                     'Gryllteiste',
+                     'Buchfink',
+                     'Schnatterente',
+                     'unbestimmte Larusmöwe',
+                     'Fischereigerät (Schwimmer)'
+                     ]
         if cat in EDGE_CATS:
             top_3_label = torch.topk(predicted[i].flatten(), 3).indices
             top_3_cat = [get_cat_from_label(label) for label in top_3_label]
