@@ -5,7 +5,10 @@ import torch.optim as optim
 from config.parser_config import config_parser
 from model.cwgan import *
 import wandb
+from sklearn.model_selection import train_test_split
 from classification_dataset import ClassificationDataset
+from dataset_utils import stratified_split
+from torch.utils.data import DataLoader
 
 class Trainer():
 
@@ -133,15 +136,27 @@ def main(args):
         label_path= args.label_path,
         size = args.size)
 
+    labels = full_dataset._labels
     get_cat_from_label = full_dataset._get_cat_from_label
-    train_size = int(0.8 * len(full_dataset))
-    valid_size = len(full_dataset) - train_size
-    train_data, _ = torch.utils.data.random_split(full_dataset, [train_size, valid_size],
-                                                                  generator=torch.Generator().manual_seed(0))    
-    
-    train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers)
     class_size = full_dataset._get_num_classes()
+    
+    train_data, train_set_labels, validation_data, test_set_labels = stratified_split(dataset = full_dataset, 
+                                                                                            labels = full_dataset._labels,
+                                                                                            fraction = 0.8,
+                                                                                            random_state=0)
+    
 
+    train_dataloader = DataLoader(train_data,
+                                  batch_size=args.batch_size, 
+                                  shuffle=True,
+                                  num_workers=args.num_workers)
+    
+    validation_dataloader = DataLoader(validation_data, 
+                                       batch_size=args.batch_size, 
+                                       shuffle=True,
+                                       num_workers=args.num_workers)
+    
+    
     gan = Trainer(data_loader = train_dataloader, 
                   class_size = class_size,
                   embedding_dim = args.embedding_dim,

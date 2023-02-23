@@ -9,6 +9,7 @@ from model.conwgan_utils import *
 import wandb
 from tqdm import tqdm #te quiero demasio. taqadum
 from config.parser_config import config_parser
+from dataset_utils import stratified_split
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 RESTORE_MODE = True
@@ -169,30 +170,26 @@ def run(run_name, args):
         image_path= args.image_path,
         label_path= args.label_path,
         size = args.size,
-        normalize = True)
+        normalize=True)
+
+    get_cat_from_label = full_dataset._get_cat_from_label
+    class_size = full_dataset._get_num_classes()
     
+    train_data, train_set_labels, validation_data, test_set_labels = stratified_split(dataset = full_dataset, 
+                                                                                            labels = full_dataset._labels,
+                                                                                            fraction = 0.8,
+                                                                                            random_state=0)
     
-    # get_cat_from_label = full_dataset._get_cat_from_label
-    num_classes = full_dataset._get_num_classes()
-    train_size = int(0.8 * len(full_dataset))
-    valid_size = len(full_dataset) - train_size
-    train_data, validation_data = torch.utils.data.random_split(full_dataset, [train_size, valid_size],
-                                                                generator=torch.Generator().manual_seed(0))
-    # X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.1, stratify=y)
     
     train_dataloader = DataLoader(train_data,
-                                batch_size=args.batch_size, 
-                                shuffle=True,
-                                num_workers=args.num_workers)
+                                  batch_size=args.batch_size, 
+                                  shuffle=True,
+                                  num_workers=args.num_workers)
     
-    validation_dataloader = DataLoader(validation_data, 
-                                    batch_size=args.batch_size, 
-                                    shuffle=True,
-                                    num_workers=args.num_workers)
     
     train(train_dataloader = train_dataloader,
-          validation_dataloader = validation_dataloader, 
-          num_classes = num_classes,
+          validation_dataloader = None, 
+          num_classes = class_size,
           batch_size= args.batch_size,
           end_iter = args.epochs,
           lr = args.lr,
