@@ -9,7 +9,7 @@ from model.conwgan_utils import *
 import wandb
 from tqdm import tqdm #te quiero demasio. taqadum
 from config.parser_config import config_parser
-from dataset_utils import stratified_split
+from dataset_utils import stratified_split, get_datasubset
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 RESTORE_MODE = True
@@ -181,7 +181,16 @@ def run(run_name, args):
                                                                                             random_state=0)
     
     
-    train_dataloader = DataLoader(train_data,
+    edge_classes = ["Gryllteiste","Schnatterente","Buchfink","unbestimmte Larusmöwe",
+                        "Schmarotzer/Spatel/Falkenraubmöwe","Brandgans","Wasserlinie mit Großalgen",
+                        "Feldlerche","Schmarotzerraubmöwe","Grosser Brachvogel","unbestimmte Raubmöwe",
+                        "Turmfalke","Trauerseeschwalbe","unbestimmter Schwan",
+                        "Sperber","Kiebitzregenpfeifer",
+                        "Skua","Graugans","unbestimmte Krähe"]
+    
+    edge_labels = [full_dataset._get_label_from_cat(cat) for cat in edge_classes]
+    edge_train_data = get_datasubset(train_data, full_dataset._labels, edge_labels)                        
+    train_dataloader = DataLoader(edge_train_data,
                                   batch_size=args.batch_size, 
                                   shuffle=True,
                                   num_workers=args.num_workers)
@@ -189,13 +198,14 @@ def run(run_name, args):
     
     train(train_dataloader = train_dataloader,
           validation_dataloader = None, 
-          num_classes = class_size,
+          num_classes = len(edge_labels),
           batch_size= args.batch_size,
           end_iter = args.epochs,
           lr = args.lr,
           image_size=args.size,
           latent_size= args.latent_size,
           model_dim= args.model_dim)
+
 
 if __name__ == "__main__":
     # wandb.init(project="training conditional WGAN")

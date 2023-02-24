@@ -147,5 +147,8 @@ class ClassificationDataset(Dataset):
     def _get_cat_from_label(self, index):
         return self._all_categories[index]
 
+    def _get_label_from_cat(self, cat):
+        index = self._all_categories.tolist().index(cat)
+        return self._labels[index]
     
     

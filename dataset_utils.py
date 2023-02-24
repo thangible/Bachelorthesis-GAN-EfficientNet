@@ -19,3 +19,11 @@ def stratified_split(dataset : torch.utils.data.Dataset, labels, fraction, rando
     second_set_inputs = torch.utils.data.Subset(dataset, second_set_indices)
     second_set_labels = list(map(labels.__getitem__, second_set_indices))
     return first_set_inputs, first_set_labels, second_set_inputs, second_set_labels
+
+def get_datasubset(dataset : torch.utils.data.Dataset, full_labels, edge_labels):
+  edge_index_list = list()
+  for index, label in enumerate(full_labels):
+    if label in edge_labels:
+      edge_index_list.append(index)
+  return torch.utils.data.Subset(dataset, edge_index_list)  
+
