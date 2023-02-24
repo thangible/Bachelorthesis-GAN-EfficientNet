@@ -12,7 +12,7 @@ from config.parser_config import config_parser
 from dataset_utils import stratified_split, get_datasubset
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-RESTORE_MODE = True
+RESTORE_MODE = False
 
 
 def train(train_dataloader,
@@ -33,8 +33,8 @@ def train(train_dataloader,
     ) -> None:
     
     if RESTORE_MODE:
-        GENERATOR = torch.load(output_path + "generator.pt")
-        DISCRIMINATOR = torch.load(output_path + "discriminator.pt")
+        GENERATOR = torch.load(output_path + "generator_with_num_class_{}.pt".format(num_classes))
+        DISCRIMINATOR = torch.load(output_path + "discriminator_with_num_class_{}.pt".format(num_classes))
     else:
         GENERATOR = GoodGenerator(num_classes = num_classes, size=image_size, latent_size = latent_size, dim = model_dim)
         DISCRIMINATOR = GoodDiscriminator(num_classes = num_classes, size=image_size, dim = model_dim)
