@@ -86,7 +86,7 @@ class ClassificationDataset(Dataset):
         #ASSIGNING
         image_names = data.file.array
         labels = data.label.array
-        categories = data.name.array
+        categories = data.name.tolist()
         return image_names, labels, categories
         
     def _get_image(self, index: int):
@@ -148,7 +148,7 @@ class ClassificationDataset(Dataset):
         return self._all_categories[index]
 
     def _get_label_from_cat(self, cat):
-        index = self._all_categories.tolist().index(cat)
+        index = self._categories.index(cat)
         return self._labels[index]
     
     

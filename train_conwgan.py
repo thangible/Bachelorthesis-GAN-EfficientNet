@@ -9,7 +9,7 @@ from model.conwgan_utils import *
 import wandb
 from tqdm import tqdm #te quiero demasio. taqadum
 from config.parser_config import config_parser
-from dataset_utils import stratified_split, get_datasubset
+from dataset_utils import stratified_split, edge_stratified_split
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 RESTORE_MODE = False
@@ -173,13 +173,7 @@ def run(run_name, args):
         normalize=True)
 
     get_cat_from_label = full_dataset._get_cat_from_label
-    class_size = full_dataset._get_num_classes()
-    
-    train_data, train_set_labels, validation_data, test_set_labels = stratified_split(dataset = full_dataset, 
-                                                                                            labels = full_dataset._labels,
-                                                                                            fraction = 0.8,
-                                                                                            random_state=0)
-    
+    class_size = full_dataset._get_num_classes()   
     
     edge_classes = ["Gryllteiste","Schnatterente","Buchfink","unbestimmte Larusmöwe",
                         "Schmarotzer/Spatel/Falkenraubmöwe","Brandgans","Wasserlinie mit Großalgen",
@@ -189,7 +183,8 @@ def run(run_name, args):
                         "Skua","Graugans","unbestimmte Krähe"]
     
     edge_labels = [full_dataset._get_label_from_cat(cat) for cat in edge_classes]
-    edge_train_data = get_datasubset(train_data, full_dataset._labels, edge_labels)                        
+    
+    edge_train_data = edge_stratified_split(full_dataset, full_labels = full_dataset._labels, edge_labels = edge_labels,  fraction = 0.8, random_state = 0)                     
     train_dataloader = DataLoader(edge_train_data,
                                   batch_size=args.batch_size, 
                                   shuffle=True,

@@ -12,6 +12,7 @@ from tqdm import tqdm #te quiero demasio. taqadum
 from config.parser_config import config_parser
 from torch.autograd import Variable
 import os
+from dataset_utils import *
 
 
 
@@ -140,21 +141,23 @@ def run(run_name, args):
         image_path= args.image_path,
         label_path= args.label_path,
         size = args.size,
-        normalize = True)
+        normalize=True)
+   
+    edge_classes = ["Gryllteiste","Schnatterente","Buchfink","unbestimmte Larusmöwe",
+                        "Schmarotzer/Spatel/Falkenraubmöwe","Brandgans","Wasserlinie mit Großalgen",
+                        "Feldlerche","Schmarotzerraubmöwe","Grosser Brachvogel","unbestimmte Raubmöwe",
+                        "Turmfalke","Trauerseeschwalbe","unbestimmter Schwan",
+                        "Sperber","Kiebitzregenpfeifer",
+                        "Skua","Graugans","unbestimmte Krähe"]
     
+    edge_labels = [full_dataset._get_label_from_cat(cat) for cat in edge_classes]
     
-    # get_cat_from_label = full_dataset._get_cat_from_label
-    num_classes = full_dataset._get_num_classes()
-    train_size = int(0.8 * len(full_dataset))
-    valid_size = len(full_dataset) - train_size
-    train_data, _ = torch.utils.data.random_split(full_dataset, [train_size, valid_size],
-                                                                generator=torch.Generator().manual_seed(0))
-    # X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.1, stratify=y)
-    
-    train_dataloader = DataLoader(train_data,
-                                batch_size=args.batch_size, 
-                                shuffle=True,
-                                num_workers=args.num_workers)
+    edge_train_data = edge_stratified_split(full_dataset, full_labels = full_dataset._labels, edge_labels = edge_labels,  fraction = 0.8, random_state = 0)                     
+    train_dataloader = DataLoader(edge_train_data,
+                                  batch_size=args.batch_size, 
+                                  shuffle=True,
+                                  num_workers=args.num_workers)
+
     
     get_cat_from_label = full_dataset._get_cat_from_label
     
@@ -164,7 +167,7 @@ def run(run_name, args):
     #                                 num_workers=args.num_workers)
     
     train(data_loader = train_dataloader,
-          class_num = num_classes,
+          class_num = len(edge_labels),
           batch_size= args.batch_size,
           epochs = args.epochs,
           lr = args.lr,

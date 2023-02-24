@@ -27,3 +27,24 @@ def get_datasubset(dataset : torch.utils.data.Dataset, full_labels, edge_labels)
       edge_index_list.append(index)
   return torch.utils.data.Subset(dataset, edge_index_list)  
 
+def edge_stratified_split(dataset : torch.utils.data.Dataset, full_labels, edge_labels, fraction, random_state=None):
+    if random_state: random.seed(random_state)
+    indices_per_label = defaultdict(list)
+    for index, label in enumerate(full_labels):
+        indices_per_label[label].append(index)
+    first_set_indices = list()
+    for label, indices in indices_per_label.items():
+        n_samples_for_label = round(len(indices) * fraction)
+        random_indices_sample = random.sample(indices, n_samples_for_label)
+        first_set_indices.extend(random_indices_sample)
+    #EDGE
+    edge_index_list = list()
+    for index, label in enumerate(full_labels):
+      if label in edge_labels:
+        edge_index_list.append(index)
+    labels_index = list(set(first_set_indices).intersection(edge_index_list))
+    labels_index = list(set(labels_index))
+    #CASE
+    new_dataset = torch.utils.data.Subset(dataset, labels_index)
+    return new_dataset
+
