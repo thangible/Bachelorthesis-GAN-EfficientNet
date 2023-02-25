@@ -193,7 +193,7 @@ def run(run_name, args):
     
     train(train_dataloader = train_dataloader,
           validation_dataloader = None, 
-          num_classes = len(edge_labels),
+          num_classes = full_dataset._get_num_classes(),
           batch_size= args.batch_size,
           end_iter = args.epochs,
           lr = args.lr,
