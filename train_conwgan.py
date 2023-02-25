@@ -29,7 +29,8 @@ def train(train_dataloader,
           lr = 1e-4,
           image_size = 256,
           latent_size = 100,
-          model_dim = 8
+          model_dim = 8,
+          edge_labels = None
     ) -> None:
     
     if RESTORE_MODE:
@@ -144,7 +145,7 @@ def train(train_dataloader,
                 with torch.no_grad():
                     imgs_v = imgs       
                 output_wgan, _ = DISCRIMINATOR(imgs_v)
-                fixed_labels = torch.arange(0, batch_size, dtype=int)
+                fixed_labels =  torch.LongTensor(edge_labels)
                 _, fixed_noise = get_noise(device = device,num_classes = num_classes, 
                                                         labels = fixed_labels, 
                                                         batch_size=batch_size)
@@ -204,7 +205,8 @@ def run(run_name, args):
           lr = args.lr,
           image_size=args.size,
           latent_size= args.latent_size,
-          model_dim= args.model_dim)
+          model_dim= args.model_dim,
+          edge_labels = edge_labels)
 
 
 if __name__ == "__main__":
@@ -213,7 +215,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
     run_name = 'TRAIN cWGAN'
     # wandb.init(mode="disabled") 
-    wandb.init(project="train_wgan") 
+    wandb_mode = None
+    if args.test:
+        wandb_mode = 'disabled'
+    wandb.init(project="train_wgan", mode = wandb_mode) 
     wandb.run.name = run_name + ' ,lr: {}, epochs: {}, size: {}'.format(args.lr, args. epochs, args.size)
     wandb.config = {'epochs' : args.epochs, 
     'run_name' : run_name,
