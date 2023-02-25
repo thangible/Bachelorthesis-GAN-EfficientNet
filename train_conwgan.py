@@ -145,7 +145,7 @@ def train(train_dataloader,
                 with torch.no_grad():
                     imgs_v = imgs       
                 output_wgan, _ = DISCRIMINATOR(imgs_v)
-                fixed_labels =  torch.LongTensor(edge_labels)
+                fixed_labels =  torch.LongTensor(edge_labels[:batch_size])
                 _, fixed_noise = get_noise(device = device,num_classes = num_classes, 
                                                         labels = fixed_labels, 
                                                         batch_size=batch_size)
