@@ -33,7 +33,7 @@ def train(data_loader,
           z_size = 100,
           log_dir = './saved_models/vanilla_gan',
           test_mode = False,
-          edge_labels = edge_labels):
+          edge_labels = None):
     
     if model_dim:
         generator_layer_size = [model_dim, model_dim*2, model_dim*4]
