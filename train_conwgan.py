@@ -29,7 +29,7 @@ def train(train_dataloader,
           lr = 1e-4,
           image_size = 256,
           latent_size = 100,
-          model_dim = 8# How many iterations to train for
+          model_dim = 8
     ) -> None:
     
     if RESTORE_MODE:
@@ -184,15 +184,20 @@ def run(run_name, args):
     
     edge_labels = [full_dataset._get_label_from_cat(cat) for cat in edge_classes]
     
-    edge_train_data = edge_stratified_split(full_dataset, full_labels = full_dataset._labels, edge_labels = edge_labels,  fraction = 0.8, random_state = 0)                     
+    edge_train_data, test_dataset = edge_stratified_split(full_dataset, full_labels = full_dataset._labels, edge_labels = edge_labels,  fraction = 0.8, random_state = 0)                     
     train_dataloader = DataLoader(edge_train_data,
+                                  batch_size=args.batch_size, 
+                                  shuffle=True,
+                                  num_workers=args.num_workers)
+    
+    test_dataloader = DataLoader(test_dataset,
                                   batch_size=args.batch_size, 
                                   shuffle=True,
                                   num_workers=args.num_workers)
     
     
     train(train_dataloader = train_dataloader,
-          validation_dataloader = None, 
+          validation_dataloader = test_dataloader, 
           num_classes = full_dataset._get_num_classes(),
           batch_size= args.batch_size,
           end_iter = args.epochs,

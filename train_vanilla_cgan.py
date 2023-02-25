@@ -155,7 +155,7 @@ def run(run_name, args):
     
     edge_labels = [full_dataset._get_label_from_cat(cat) for cat in edge_classes]
     
-    edge_train_data = edge_stratified_split(full_dataset, full_labels = full_dataset._labels, edge_labels = edge_labels,  fraction = 0.8, random_state = 0)                     
+    edge_train_data, _ = edge_stratified_split(full_dataset, full_labels = full_dataset._labels, edge_labels = edge_labels,  fraction = 0.8, random_state = 0)                     
     train_dataloader = DataLoader(edge_train_data,
                                   batch_size=args.batch_size, 
                                   shuffle=True,
