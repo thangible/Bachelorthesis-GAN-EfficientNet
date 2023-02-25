@@ -1,18 +1,18 @@
-from model.vanilla_cgan import *
 import numpy as np
 import torch
 import torchvision
-from model.conwgan import *
-from model.vanilla_cgan_utils import *
 from torch.utils.data import DataLoader
-from classification_dataset import ClassificationDataset
-from model.conwgan_utils import *
-import wandb
 from tqdm import tqdm #te quiero demasio. taqadum
-from config.parser_config import config_parser
 from torch.autograd import Variable
 import os
+import wandb
+#FROM MODULES
+from config.parser_config import config_parser
 from dataset_utils import *
+from model.vanilla_cgan_utils import *
+from classification_dataset import ClassificationDataset
+from model.vanilla_cgan import *
+
 
 
 
@@ -44,6 +44,8 @@ def train(data_loader,
     criterion = nn.BCELoss().to(device)
     g_optimizer = torch.optim.Adam(generator.parameters(), lr=lr)
     d_optimizer = torch.optim.Adam(discriminator.parameters(), lr=lr)
+    
+    
     
     if os.path.exists(g_path):
         g_checkpoint = torch.load(g_path)
@@ -167,7 +169,7 @@ def run(run_name, args):
     #                                 num_workers=args.num_workers)
     
     train(data_loader = train_dataloader,
-          class_num = len(edge_labels),
+          class_num = full_dataset._get_num_classes(),
           batch_size= args.batch_size,
           epochs = args.epochs,
           lr = args.lr,
