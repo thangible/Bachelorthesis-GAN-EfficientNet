@@ -32,7 +32,8 @@ def train(data_loader,
           discriminator_layer_size = [1024, 512, 256],
           z_size = 100,
           log_dir = './saved_models/vanilla_gan',
-          test_mode = False):
+          test_mode = False,
+          edge_labels = edge_labels):
     
     if model_dim:
         generator_layer_size = [model_dim, model_dim*2, model_dim*4]
@@ -91,7 +92,7 @@ def train(data_loader,
                                           criterion = criterion,
                                           class_num = class_num,
                                           z_size= z_size)  
-            print('g_loss', g_loss.cpu(), 'd_loss', d_loss.cpu())
+            # print('g_loss', g_loss.cpu(), 'd_loss', d_loss.cpu())
               
         # Set generator eval
         generator.eval()    
@@ -99,10 +100,9 @@ def train(data_loader,
         wandb.log({'d_loss': d_loss, 'epoch' : epoch})
         # Building z 
         if epoch % 50 == 0:
-            num_of_pics = 64
-            z = Variable(torch.randn(num_of_pics, z_size)).to(device)  
+            z = Variable(torch.randn(len(edge_labels), z_size)).to(device)  
             # Labels 0 ~ 8
-            labels = Variable(torch.LongTensor(np.arange(num_of_pics))).to(device)
+            labels = Variable(torch.LongTensor(edge_labels)).to(device)
             # Generating images
             sample_images_raw = generator(z, labels).view(-1,3,256,256)
             sample_images = torch.round(sample_images_raw*127.5 + 127.5).float()
@@ -179,7 +179,8 @@ def run(run_name, args):
           get_cat_from_label = get_cat_from_label,
           run_name = run_name,
           model_dim = args.model_dim,
-          test_mode= args.test)
+          test_mode= args.test,
+          edge_labels = edge_labels)
 
 if __name__ == "__main__":
     # wandb.init(project="training conditional WGAN")
