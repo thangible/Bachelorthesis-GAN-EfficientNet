@@ -84,8 +84,12 @@ if __name__ == "__main__":
     #     Solarize_HP[key] = A.Normalize(mean = means, std = stds, p = 1.0)
         
     Clahe_HP = {}
-    for limit in [4,8,32]:
-        for size in [2,4]:
+    for limit in [4, 8, 32]:
+        for size in [4]:
+            key = 'Clahe limit: {}, size: {}'.format(limit, size)
+            Clahe_HP[key] = A.CLAHE(clip_limit = limit, tile_grid_size=(size, size), p=1.0)
+    for limit in [2, 16]:
+        for size in [4,8, 16, 32]:
             key = 'Clahe limit: {}, size: {}'.format(limit, size)
             Clahe_HP[key] = A.CLAHE(clip_limit = limit, tile_grid_size=(size, size), p=1.0)
     
