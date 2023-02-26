@@ -85,23 +85,23 @@ if __name__ == "__main__":
         
     Clahe_HP = {}
     for limit in [4,8,32]:
-        for size in [8, 16, 32]:
+        for size in [2,4]:
             key = 'Clahe limit: {}, size: {}'.format(limit, size)
             Clahe_HP[key] = A.CLAHE(clip_limit = limit, tile_grid_size=(size, size), p=1.0)
     
-    Sharpen_HP = {}
-    for alpha in [(0.2,0.4),(0.4,0.6),(0.6,0.8)]:
-        for lightness  in [(0.2,0.6),(0.4,0.8),(0.6,1.0)]:
-            key = 'Sharpen_ alpha: {}, lightness: {}'.format(alpha, lightness)
-            Sharpen_HP[key] = A.Sharpen(alpha= alpha, lightness = lightness, p=1.0)
+    # Sharpen_HP = {}
+    # for alpha in [(0.2,0.4),(0.4,0.6),(0.6,0.8)]:
+    #     for lightness  in [(0.2,0.6),(0.4,0.8),(0.6,1.0)]:
+    #         key = 'Sharpen_ alpha: {}, lightness: {}'.format(alpha, lightness)
+    #         Sharpen_HP[key] = A.Sharpen(alpha= alpha, lightness = lightness, p=1.0)
         
-    Griddropout_HP = {}
-    for ratio in [0.4, 0.5, 0.6, 0.3, 0.2]:
-        key = 'Griddropout ratio: {}'.format(ratio)
-        Griddropout_HP[key] = A.GridDropout(ratio = ratio, random_offset = True, p=1)
+    # Griddropout_HP = {}
+    # for ratio in [0.4, 0.5, 0.6, 0.3, 0.2]:
+    #     key = 'Griddropout ratio: {}'.format(ratio)
+    #     Griddropout_HP[key] = A.GridDropout(ratio = ratio, random_offset = True, p=1)
     
     
-    HP = {**Clahe_HP, **Sharpen_HP, **Griddropout_HP}
+    HP = {**Clahe_HP, **ColoJitter_HP}
     # augmentations = ['no augment']
     # run_names = ['New Baseline - No Augment'] 
     
