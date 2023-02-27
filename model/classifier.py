@@ -51,10 +51,15 @@ def main(
     get_cat_from_label = full_dataset._get_cat_from_label
     num_classes = full_dataset._get_num_classes()
     
-    train_data, train_set_labels, validation_data, test_set_labels = stratified_split(dataset = full_dataset, 
-                                                                                            labels = full_dataset._labels,
-                                                                                            fraction = 0.8,
-                                                                                            random_state=0)
+    train_size = int(0.8 * len(full_dataset))
+    valid_size = len(full_dataset) - train_size
+    train_data, validation_data = torch.utils.data.random_split(full_dataset, [train_size, valid_size],
+                                                                  generator=torch.Generator().manual_seed(0))
+    
+    # train_data, train_set_labels, validation_data, test_set_labels = stratified_split(dataset = full_dataset, 
+    #                                                                                         labels = full_dataset._labels,
+    #                                                                                         fraction = 0.8,
+    #                                                                                         random_state=0)
     
 
     train_dataloader = DataLoader(train_data,
