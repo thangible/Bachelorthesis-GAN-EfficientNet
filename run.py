@@ -39,7 +39,6 @@ if __name__ == "__main__":
         transforms_list = [CenterCrop,
                            GaussNoise,
                            Sharpen,
-                           Cutout,
                            ChannelShuffle,
                            ColorJitter,
                            Solarize,
@@ -84,28 +83,36 @@ if __name__ == "__main__":
     #     Solarize_HP[key] = A.Normalize(mean = means, std = stds, p = 1.0)
         
     Clahe_HP = {}
-    for limit in [4, 8, 32]:
-        for size in [4]:
-            key = 'Clahe limit: {}, size: {}'.format(limit, size)
-            Clahe_HP[key] = A.CLAHE(clip_limit = limit, tile_grid_size=(size, size), p=1.0)
-    for limit in [2, 16]:
-        for size in [4,8, 16, 32]:
-            key = 'Clahe limit: {}, size: {}'.format(limit, size)
-            Clahe_HP[key] = A.CLAHE(clip_limit = limit, tile_grid_size=(size, size), p=1.0)
+    for pair in [(4,16),(32,8), (32,32), (32,16), (4,32), (4,8), (8, 16), (8, 32), (8,8)]:
+        limit, size = pair
+        key = 'Clahe limit: {}, size: {}'.format(limit, size)
+        Clahe_HP[key] = A.CLAHE(clip_limit = limit, tile_grid_size=(size, size), p=1.0)
+    # for limit in [4, 8, 32]:
+    #     for size in [4]:
+    #         key = 'Clahe limit: {}, size: {}'.format(limit, size)
+    #         Clahe_HP[key] = A.CLAHE(clip_limit = limit, tile_grid_size=(size, size), p=1.0)
+    # for limit in [2, 16]:
+    #     for size in [4,8, 16, 32]:
+    #         key = 'Clahe limit: {}, size: {}'.format(limit, size)
+    #         Clahe_HP[key] = A.CLAHE(clip_limit = limit, tile_grid_size=(size, size), p=1.0)
     
-    # Sharpen_HP = {}
-    # for alpha in [(0.2,0.4),(0.4,0.6),(0.6,0.8)]:
-    #     for lightness  in [(0.2,0.6),(0.4,0.8),(0.6,1.0)]:
-    #         key = 'Sharpen_ alpha: {}, lightness: {}'.format(alpha, lightness)
-    #         Sharpen_HP[key] = A.Sharpen(alpha= alpha, lightness = lightness, p=1.0)
+    Sharpen_HP = {}
+    for alpha in [(0.2,0.4),(0.4,0.6),(0.6,0.8)]:
+        for lightness  in [(0.2,0.6),(0.4,0.8),(0.6,1.0)]:
+            key = 'Sharpen_ alpha: {}, lightness: {}'.format(alpha, lightness)
+            Sharpen_HP[key] = A.Sharpen(alpha= alpha, lightness = lightness, p=1.0)
         
-    # Griddropout_HP = {}
-    # for ratio in [0.4, 0.5, 0.6, 0.3, 0.2]:
-    #     key = 'Griddropout ratio: {}'.format(ratio)
-    #     Griddropout_HP[key] = A.GridDropout(ratio = ratio, random_offset = True, p=1)
+    Griddropout_HP = {}
+    for ratio in [0.4, 0.5, 0.6, 0.3, 0.2]:
+        key = 'Griddropout ratio: {}'.format(ratio)
+        Griddropout_HP[key] = A.GridDropout(ratio = ratio, random_offset = True, p=1)
     
     
-    HP = {**Clahe_HP, **ColoJitter_HP}
+    
+    
+    
+    HP = {**Clahe_HP,**Sharpen_HP,**Griddropout_HP}
+    HP['RandAug'] = RandAugment
     # augmentations = ['no augment']
     # run_names = ['New Baseline - No Augment'] 
     
