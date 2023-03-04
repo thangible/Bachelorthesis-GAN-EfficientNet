@@ -67,7 +67,7 @@ class ClassificationDataset(Dataset):
     def _get_names_and_labels_categories(self):
         
         #PREPROCESSING
-        all_data = pd.read_csv(self._label_path,index_col=False)
+        all_data = pd.read_csv(self._label_path, index_col=False)
         data = all_data[['tp','name','file']].copy()
         data.reset_index(drop=True, inplace=True)
         unwanted_classes = self._unwanted_classes

@@ -76,43 +76,49 @@ if __name__ == "__main__":
     #     Solarize_HP[key] = A.Solarize(threshold = threshold, p = 1.0)
         
     Normalize_HP  = {}
-    # for i in range(4):
-    #     means = tuple(np.random.normal(loc = 0.4, scale = 0.5, size =(3)))
-    #     stds = tuple(np.random.uniform(0.1, 0.8, size = (3)))
-    #     key = 'Normalize means: ({:.3f}, {:.3f}, {:.3f}), std = {:.3f}, {:.3f}, {:.3f})'.format(*means,*stds)
-    #     Solarize_HP[key] = A.Normalize(mean = means, std = stds, p = 1.0)
+    for i in range(4):
+        means = tuple(np.random.normal(loc = 0.4, scale = 0.5, size =(3)))
+        stds = tuple(np.random.uniform(0.1, 0.8, size = (3)))
+        key = 'Normalize means: ({:.3f}, {:.3f}, {:.3f}), std = {:.3f}, {:.3f}, {:.3f})'.format(*means,*stds)
+        Solarize_HP[key] = A.Normalize(mean = means, std = stds, p = 1.0)
         
-    Clahe_HP = {}
-    for pair in [(4,16),(32,8), (32,32), (32,16), (4,32), (4,8), (8, 16), (8, 32), (8,8)]:
-        limit, size = pair
-        key = 'Clahe limit: {}, size: {}'.format(limit, size)
-        Clahe_HP[key] = A.CLAHE(clip_limit = limit, tile_grid_size=(size, size), p=1.0)
+    # Clahe_HP = {}
+    # for pair in [(4,16),(32,8), (32,32), (32,16), (4,32), (4,8), (8, 16), (8, 32), (8,8)]:
+    #     limit, size = pair
+    #     key = 'Clahe limit: {}, size: {}'.format(limit, size)
+        # Clahe_HP[key] = A.CLAHE(clip_limit = limit, tile_grid_size=(size, size), p=1.0)
     # for limit in [4, 8, 32]:
     #     for size in [4]:
-    #         key = 'Clahe limit: {}, size: {}'.format(limit, size)
+    #         key = 'Clahe limit: {}, size: {}'.format(limit, size) 
     #         Clahe_HP[key] = A.CLAHE(clip_limit = limit, tile_grid_size=(size, size), p=1.0)
     # for limit in [2, 16]:
     #     for size in [4,8, 16, 32]:
     #         key = 'Clahe limit: {}, size: {}'.format(limit, size)
     #         Clahe_HP[key] = A.CLAHE(clip_limit = limit, tile_grid_size=(size, size), p=1.0)
     
-    Sharpen_HP = {}
-    for alpha in [(0.2,0.4),(0.4,0.6),(0.6,0.8)]:
-        for lightness  in [(0.2,0.6),(0.4,0.8),(0.6,1.0)]:
-            key = 'Sharpen_ alpha: {}, lightness: {}'.format(alpha, lightness)
-            Sharpen_HP[key] = A.Sharpen(alpha= alpha, lightness = lightness, p=1.0)
+    # Sharpen_HP = {}
+    # for alpha in [(0.2,0.4),(0.4,0.6),(0.6,0.8)]:
+    #     for lightness  in [(0.2,0.6),(0.4,0.8),(0.6,1.0)]:
+    #         key = 'Sharpen_ alpha: {}, lightness: {}'.format(alpha, lightness)
+    #         Sharpen_HP[key] = A.Sharpen(alpha= alpha, lightness = lightness, p=1.0)
         
-    Griddropout_HP = {}
-    for ratio in [0.4, 0.5, 0.6, 0.3, 0.2]:
-        key = 'Griddropout ratio: {}'.format(ratio)
-        Griddropout_HP[key] = A.GridDropout(ratio = ratio, random_offset = True, p=1)
+    # Griddropout_HP = {}
+    # for ratio in [0.4, 0.5, 0.6, 0.3, 0.2]:
+    #     key = 'Griddropout ratio: {}'.format(ratio)
+    #     Griddropout_HP[key] = A.GridDropout(ratio = ratio, random_offset = True, p=1)
+    
+    Perspective_HP = {}
+    for scale in np.arange(0, 1, 0.2):
+        key = 'Perspective scale: {}'.format(scale)
+        Perspective_HP[key] = A.GridDropout(ratio = scale, p=1)
     
     
-    
-    
-    
-    HP = {**Clahe_HP,**Sharpen_HP,**Griddropout_HP}
-    HP['RandAug'] = RandAugment
+    Cutout_HP = {}
+    for num_holes in range(1, 10):
+        key = 'Cutout num_holes: {}'.format(scale)
+        Cutout_HP[key] =  A.CoarseDropout(num_holes = num_holes, p =1,  max_height=50, max_width=50)
+        
+    HP = {**Cutout_HP, **Perspective_HP,**Normalize_HP}
     # augmentations = ['no augment']
     # run_names = ['New Baseline - No Augment'] 
     
