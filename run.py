@@ -110,7 +110,7 @@ if __name__ == "__main__":
     Perspective_HP = {}
     for scale in np.arange(0, 1, 0.2):
         key = 'Perspective scale: {}'.format(scale)
-        Perspective_HP[key] = A.GridDropout(scale = scale, p=1)
+        Perspective_HP[key] = A.Perspective(scale = scale, p=1)
     
     
     Cutout_HP = {}
