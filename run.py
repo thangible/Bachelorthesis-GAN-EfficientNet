@@ -114,9 +114,9 @@ if __name__ == "__main__":
     
     
     Cutout_HP = {}
-    for num_holes in range(1, 10):
-        key = 'Cutout num_holes: {}'.format(scale)
-        Cutout_HP[key] =  A.CoarseDropout(num_holes = num_holes, p =1,  max_height=50, max_width=50)
+    for max_holes in range(1, 10):
+        key = 'Cutout max_holes: {}'.format(max_holes)
+        Cutout_HP[key] =  A.CoarseDropout(max_holes = max_holes, p =1,  max_height=50, max_width=50)
         
     HP = {**Cutout_HP, **Perspective_HP,**Normalize_HP}
     # augmentations = ['no augment']
