@@ -61,26 +61,26 @@ if __name__ == "__main__":
     
     
     
-    ColoJitter_HP = {}
-    for i in range(8):
-        brightness = np.random.uniform(0.2, 0.8)
-        contrast = np.random.uniform(0.2, 0.8)
-        saturation = np.random.uniform(0.2, 0.8)
-        hue = np.random.uniform(0.2, 0.8)
-        key = 'ColorJitter brightness:{:.2f}, contrast:{:.2f}, saturation:{:.2f}, hue:{:.2f}'.format(brightness, contrast, saturation, hue)
-        ColoJitter_HP[key] = A.ColorJitter(brightness=brightness, contrast=contrast, saturation=saturation, hue=hue , p=1.0)
+    # ColoJitter_HP = {}
+    # for i in range(8):
+    #     brightness = np.random.uniform(0.2, 0.8)
+    #     contrast = np.random.uniform(0.2, 0.8)
+    #     saturation = np.random.uniform(0.2, 0.8)
+    #     hue = np.random.uniform(0.2, 0.8)
+    #     key = 'ColorJitter brightness:{:.2f}, contrast:{:.2f}, saturation:{:.2f}, hue:{:.2f}'.format(brightness, contrast, saturation, hue)
+    #     ColoJitter_HP[key] = A.ColorJitter(brightness=brightness, contrast=contrast, saturation=saturation, hue=hue , p=1.0)
     
-    Solarize_HP = {}
-    # for threshold in  [64, 128, 192]:
-    #     key = 'Solarize Threshold: {}'.format(threshold)
-    #     Solarize_HP[key] = A.Solarize(threshold = threshold, p = 1.0)
+    # Solarize_HP = {}
+    # # for threshold in  [64, 128, 192]:
+    # #     key = 'Solarize Threshold: {}'.format(threshold)
+    # #     Solarize_HP[key] = A.Solarize(threshold = threshold, p = 1.0)
         
-    Normalize_HP  = {}
-    for i in range(4):
-        means = tuple(np.random.normal(loc = 0.4, scale = 0.5, size =(3)))
-        stds = tuple(np.random.uniform(0.1, 0.8, size = (3)))
-        key = 'Normalize means: ({:.3f}, {:.3f}, {:.3f}), std = {:.3f}, {:.3f}, {:.3f})'.format(*means,*stds)
-        Solarize_HP[key] = A.Normalize(mean = means, std = stds, p = 1.0)
+    # Normalize_HP  = {}
+    # for i in range(4):
+    #     means = tuple(np.random.normal(loc = 0.4, scale = 0.5, size =(3)))
+    #     stds = tuple(np.random.uniform(0.1, 0.8, size = (3)))
+    #     key = 'Normalize means: ({:.3f}, {:.3f}, {:.3f}), std = {:.3f}, {:.3f}, {:.3f})'.format(*means,*stds)
+    #     Solarize_HP[key] = A.Normalize(mean = means, std = stds, p = 1.0)
         
     # Clahe_HP = {}
     # for pair in [(4,16),(32,8), (32,32), (32,16), (4,32), (4,8), (8, 16), (8, 32), (8,8)]:
@@ -107,25 +107,27 @@ if __name__ == "__main__":
     #     key = 'Griddropout ratio: {}'.format(ratio)
     #     Griddropout_HP[key] = A.GridDropout(ratio = ratio, random_offset = True, p=1)
     
-    Perspective_HP = {}
-    for scale in np.arange(0, 1, 0.2):
-        key = 'Perspective scale: {}'.format(scale)
-        Perspective_HP[key] = A.Perspective(scale = scale, p=1)
+    # Perspective_HP = {}
+    # for scale in np.arange(0, 1, 0.2):
+    #     key = 'Perspective scale: {}'.format(scale)
+    #     Perspective_HP[key] = A.Perspective(scale = scale, p=1)
     
     
-    Cutout_HP = {}
-    for max_holes in range(1, 10):
-        key = 'Cutout max_holes: {}'.format(max_holes)
-        Cutout_HP[key] =  A.CoarseDropout(max_holes = max_holes, p =1,  max_height=50, max_width=50)
+    # Cutout_HP = {}
+    # for max_holes in range(1, 10):
+    #     key = 'Cutout max_holes: {}'.format(max_holes)
+    #     Cutout_HP[key] =  A.CoarseDropout(max_holes = max_holes, p =1,  max_height=50, max_width=50)
         
-    HP = {**Cutout_HP, **Perspective_HP,**Normalize_HP}
+    # HP = {**Cutout_HP, **Perspective_HP,**Normalize_HP}
     # augmentations = ['no augment']
     # run_names = ['New Baseline - No Augment'] 
     
+    classifier.single_run(args, given_augment = 'no augment', run_name = 'no pretrained')
     
-    # for i in range(len(augmentations)):
-    #     classifier.single_run(args, given_augment = augmentations[i], run_name = run_names[i])
-    for run_name in HP:
-        augmentation = HP[run_name]
-        classifier.single_run(args, given_augment = augmentation, run_name = run_name)
+    # HP = {}
+    # # for i in range(len(augmentations)):
+    # #     classifier.single_run(args, given_augment = augmentations[i], run_name = run_names[i])
+    # for run_name in HP:
+    #     augmentation = HP[run_name]
+    #     classifier.single_run(args, given_augment = augmentation, run_name = run_name)
         
