@@ -284,7 +284,7 @@ if __name__ == "__main__":
          augment = args.augment)
 
 def single_run(args, run_name, given_augment):
-    wandb.init(project="HP-classifier-efficientnet")
+    wandb.init(project="classifier-efficientnet")
     
     wandb.run.name = run_name + ' ,lr: {}, epochs: {}, size: {}'.format(args.lr, args. epochs, args.size)
     
