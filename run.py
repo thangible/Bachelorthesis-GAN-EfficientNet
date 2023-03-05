@@ -121,12 +121,34 @@ if __name__ == "__main__":
     # HP = {**Cutout_HP, **Perspective_HP,**Normalize_HP}
     # augmentations = ['no augment']
     # run_names = ['New Baseline - No Augment'] 
+    Resize = A.Resize(height = 500, width = 500, interpolation=1, p=1.0)
+    CenterCrop = A.Compose([A.CenterCrop(height = 200, width = 200, p=1.0),Resize])
+    CenterCrop_2 = A.Compose([A.CenterCrop(height = 100, width = 100, p=1.0),Resize])
+    GridDropout = A.GridDropout(ratio = 0.6, random_offset = True, p=1)
+    CLAHE = A.CLAHE(clip_limit = 4, tile_grid_size=(4, 4), p=1.0)
+    Sharpen = A.Sharpen(alpha= (0.6,0.8), lightness = (0.6,1.0), p=1.0)
+    ToGray = A.ToGray(p=1)
+    ToSepia = A.ToSepia(p=1)
+    GaussNoise = A.GaussNoise(p =1)
+    MotionBlur =  A.MotionBlur(blur_limit =31,  p=1.0)
+    Normalize = A.Normalize(mean = (0.184, 1.289, 0.661), std = (0.708, 0.338, 0.177), p = 1.0)
     
-    classifier.single_run(args, given_augment = 'no augment', run_name = 'no pretrained')
+    aug_dict = {}
+    aug_dict['CenterCrop_2_of_5'] = CenterCrop
+    aug_dict['CenterCrop_1_of_5'] = CenterCrop_2
+    aug_dict['GridDropout'] = GridDropout
+    aug_dict['CLAHE'] = CLAHE
+    aug_dict['Sharpen'] = Sharpen
+    aug_dict['ToGray'] = ToGray
+    aug_dict['ToSepia'] = ToSepia
+    aug_dict['GaussNoise'] = GaussNoise
+    aug_dict['MotionBlur'] = MotionBlur
+    aug_dict['Normalize'] = Normalize
     
-    # HP = {}
-    # # for i in range(len(augmentations)):
-    # #     classifier.single_run(args, given_augment = augmentations[i], run_name = run_names[i])
+    for run_name in aug_dict.keys():
+        augmentation = aug_dict[run_name]
+        classifier.single_run(args, given_augment = augmentation, run_name = run_name)
+
     # for run_name in HP:
     #     augmentation = HP[run_name]
     #     classifier.single_run(args, given_augment = augmentation, run_name = run_name)

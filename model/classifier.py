@@ -82,7 +82,7 @@ def main(
     
     
     #MODEL
-    MODEL = timm.create_model("efficientnet_b0", pretrained=False, num_classes= num_classes, in_chans= 3)
+    MODEL = timm.create_model("efficientnet_b0", pretrained=True, num_classes= num_classes, in_chans= 3)
     MODEL.to(device)
     OPTIM = optim.Adam(MODEL.parameters(), lr=lr)
     criterion_classification = nn.CrossEntropyLoss()
