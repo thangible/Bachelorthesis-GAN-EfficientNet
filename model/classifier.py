@@ -286,7 +286,7 @@ if __name__ == "__main__":
 def single_run(args, run_name, given_augment):
     wandb.init(project="classifier-efficientnet")
     
-    wandb.run.name = run_name + ' ,lr: {}, epochs: {}, size: {}'.format(args.lr, args. epochs, args.size)
+    wandb.run.name = 'NEW' + run_name + ' ,lr: {}, epochs: {}, size: {}'.format(args.lr, args. epochs, args.size)
     
     wandb.config = {'epochs' : args.epochs, 
     'run_name' : args.run_name,
