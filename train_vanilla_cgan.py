@@ -37,7 +37,7 @@ def train(data_loader,
     
     if model_dim:
         generator_layer_size = [model_dim, model_dim*2, model_dim*4]
-        generator_layer_size = [model_dim*4, model_dim*2, model_dim]
+        discriminator_layer_size = [model_dim*4, model_dim*2, model_dim]
     d_path = os.path.join(log_dir,'discriminator_{}.pt'.format("_".join(run_name.split(" "))))
     g_path = os.path.join(log_dir,'generator_{}.pt'.format("_".join(run_name.split(" "))))
     

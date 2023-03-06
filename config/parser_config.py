@@ -13,7 +13,7 @@ def config_parser():
     parser.add_argument("--label_path", type=str, default=None,help='label path')  
     parser.add_argument("--npz_path", type=str, default=None,help='npz path')  
     parser.add_argument("--size", type=int, default=256,help='image size') 
-    parser.add_argument("--lr", type=float, default=1e-4,help='learning rate') 
+    parser.add_argument("--lr", type=float, default=1e-3,help='learning rate') 
     parser.add_argument("--augment", type=str, default=None,help='augment method') 
     parser.add_argument("--batch_size", type=int,default=64,help='batchsize')
     parser.add_argument('--latent_size', type=int, default=100, help='size of gaussian noise vector')
