@@ -107,7 +107,7 @@ def train(data_loader,
             sample_images_raw = generator(z, labels).view(-1,3,256,256)
             sample_images = torch.round(sample_images_raw*127.5 + 127.5).float()
             for i in range(sample_images.shape[0]):
-                cat = get_cat_from_label(i)
+                cat = get_cat_from_label(labels[i])
                 img = sample_images[i,...]
                 g_single_img = wandb.Image(img, caption= cat)
                 wandb.log({'generated images': g_single_img, 'epoch': epoch} )
@@ -133,7 +133,18 @@ def train(data_loader,
                 wandb.save(g_path)
                 wandb.save(d_path)
 
-    
+    for i in range(10):
+        z = Variable(torch.randn(len(edge_labels), z_size)).to(device)  
+        # Labels 0 ~ 8
+        labels = Variable(torch.LongTensor(edge_labels)).to(device)
+        # Generating images
+        sample_images_raw = generator(z, labels).view(-1,3,256,256)
+        sample_images = torch.round(sample_images_raw*127.5 + 127.5).float()
+        for i in range(sample_images.shape[0]):
+            cat = get_cat_from_label(labels[i])
+            img = sample_images[i,...]
+            g_single_img = wandb.Image(img, caption= cat)
+            wandb.log({'end results images': g_single_img, 'label' : cat})
 
 def run(run_name, args):    
     #LOADING DATA
