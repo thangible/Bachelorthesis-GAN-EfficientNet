@@ -99,7 +99,7 @@ def train(data_loader,
         wandb.log({'g_loss': g_loss, 'epoch' : epoch})
         wandb.log({'d_loss': d_loss, 'epoch' : epoch})
         # Building z 
-        if epoch % 50 == 0:
+        if epoch % 200 == 0:
             z = Variable(torch.randn(len(edge_labels), z_size)).to(device)  
             # Labels 0 ~ 8
             labels = Variable(torch.LongTensor(edge_labels)).to(device)
