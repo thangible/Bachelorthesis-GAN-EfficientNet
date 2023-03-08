@@ -19,7 +19,7 @@ if __name__ == "__main__":
     MotionBlur_HP = {}
     for blur_limit in [10, 20 , 30, 40, 50, 60, 70]:
         name = 'blur_limit_{}'.format(blur_limit)
-        MotionBlur_HP[name] = A.Perspective(p=1.0, blur_limit=blur_limit)
+        MotionBlur_HP[name] = A.MotionBlur(p=1.0, blur_limit=blur_limit)
     
     Solarize_HP = {}
     for thresold in [64, 128, 192]:
@@ -50,7 +50,4 @@ if __name__ == "__main__":
         augmentation = HP[run_name]
         classifier.single_run(args, given_augment = augmentation, run_name = run_name, project_name= 'GOOD HP TUNING')
 
-    # for run_name in HP:
-    #     augmentation = HP[run_name]
-    #     classifier.single_run(args, given_augment = augmentation, run_name = run_name)
         
