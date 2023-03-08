@@ -13,17 +13,17 @@ if __name__ == "__main__":
     
     Perspective_HP = {}
     for scale in [0.2,0.3,0.4,0.5,0.6,0.7]:
-        name = 'scale_{}'.format(scale)
+        name = 'Perspective scale_{}'.format(scale)
         Perspective_HP[scale] = A.Perspective(p=1.0, scale=scale)
     
     MotionBlur_HP = {}
     for blur_limit in [11, 21 , 31, 41, 51, 61, 71]:
-        name = 'blur_limit_{}'.format(blur_limit)
+        name = 'MotionBlur_ blur_limit_{}'.format(blur_limit)
         MotionBlur_HP[name] = A.MotionBlur(p=1.0, blur_limit=blur_limit)
     
     Solarize_HP = {}
     for thresold in [64, 128, 192]:
-        name = 'thresold_{}'.format(thresold)
+        name = 'Solarize thresold_{}'.format(thresold)
         Solarize_HP[name] = A.Solarize(p=1.0, threshold=thresold)
         
     # def RandAugment(image, n = 3, m = 10):
