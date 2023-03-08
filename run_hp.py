@@ -46,7 +46,7 @@ if __name__ == "__main__":
     
     HP = {**Perspective_HP, **MotionBlur_HP, **Solarize_HP}
 
-    for run_name in HP.keys():
+    for run_name in HP:
         augmentation = HP[run_name]
         classifier.single_run(args, given_augment = augmentation, run_name = run_name, project_name= 'GOOD HP TUNING')
 
