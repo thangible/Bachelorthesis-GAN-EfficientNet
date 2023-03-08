@@ -283,8 +283,8 @@ if __name__ == "__main__":
          img_size = args.size,
          augment = args.augment)
 
-def single_run(args, run_name, given_augment):
-    wandb.init(project="classifier-efficientnet")
+def single_run(args, run_name, given_augment, project_name):
+    wandb.init(project=project_name)
     
     wandb.run.name = 'NEW' + run_name + ' ,lr: {}, epochs: {}, size: {}'.format(args.lr, args. epochs, args.size)
     
