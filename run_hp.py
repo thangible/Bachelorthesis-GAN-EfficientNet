@@ -17,7 +17,7 @@ if __name__ == "__main__":
         Perspective_HP[scale] = A.Perspective(p=1.0, scale=scale)
     
     MotionBlur_HP = {}
-    for blur_limit in [10, 20 , 30, 40, 50, 60, 70]:
+    for blur_limit in [11, 21 , 31, 41, 51, 61, 71]:
         name = 'blur_limit_{}'.format(blur_limit)
         MotionBlur_HP[name] = A.MotionBlur(p=1.0, blur_limit=blur_limit)
     
