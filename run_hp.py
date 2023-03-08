@@ -14,7 +14,7 @@ if __name__ == "__main__":
     Perspective_HP = {}
     for scale in [0.2,0.3,0.4,0.5,0.6,0.7]:
         name = 'Perspective scale_{}'.format(scale)
-        Perspective_HP[scale] = A.Perspective(p=1.0, scale=scale)
+        Perspective_HP[name] = A.Perspective(p=1.0, scale=scale)
     
     MotionBlur_HP = {}
     for blur_limit in [11, 21 , 31, 41, 51, 61, 71]:
