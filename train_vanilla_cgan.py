@@ -130,9 +130,9 @@ def train(data_loader,
                     'optimizer_state_dict': d_optimizer.state_dict(),
                     'loss': d_loss}, d_path)
                 
-                wandb.save(g_path)
-                wandb.save(d_path)
-
+                
+    wandb.save(g_path)
+    wandb.save(d_path)
     for i in range(10):
         z = Variable(torch.randn(len(edge_labels), z_size)).to(device)  
         # Labels 0 ~ 8
