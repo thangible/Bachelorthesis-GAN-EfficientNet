@@ -12,7 +12,7 @@ from dataset_utils import *
 from model.vanilla_cgan_utils import *
 from classification_dataset import ClassificationDataset
 from model.vanilla_cgan import *
-
+import albumentations as A
 
 
 
@@ -147,10 +147,15 @@ def train(data_loader,
             wandb.log({'end results images': g_single_img, 'label' : cat})
 
 def run(run_name, args):    
+    
+    Rotation = A.Rotate(p=0.9)
+    Flip = A.Flip(p=0.5)
+    Augmentation = A.Compose([Rotation, Flip])
+    
     #LOADING DATA
     full_dataset = ClassificationDataset(
         one_hot = False,
-        augmentation= None,
+        augmentation= Augmentation,
         npz_path= args.npz_path,
         image_path= args.image_path,
         label_path= args.label_path,
