@@ -91,6 +91,7 @@ def train(data_loader,
                                           g_optimizer = g_optimizer, 
                                           criterion = criterion,
                                           class_num = class_num,
+                                          edge_labels=edge_labels,
                                           z_size= z_size)  
             # print('g_loss', g_loss.cpu(), 'd_loss', d_loss.cpu())
               
@@ -99,7 +100,7 @@ def train(data_loader,
         wandb.log({'g_loss': g_loss, 'epoch' : epoch})
         wandb.log({'d_loss': d_loss, 'epoch' : epoch})
         # Building z 
-        if epoch % 200 == 0:
+        if epoch % 200 == 199:
             z = Variable(torch.randn(len(edge_labels), z_size)).to(device)  
             # Labels 0 ~ 8
             labels = Variable(torch.LongTensor(edge_labels)).to(device)
@@ -116,19 +117,19 @@ def train(data_loader,
             img_to_log = wandb.Image(grid, caption="samples")
             wandb.log({'sample images': img_to_log, 'epoch': epoch} )
             #SAVE MODEL
-            if not(test_mode):
-                torch.save(
-                    {'epoch': epoch,
-                    'model_state_dict': generator.state_dict(),
-                    'optimizer_state_dict': g_optimizer.state_dict(),
-                    'loss': g_loss}, g_path)
-                
-                
-                torch.save({
-                    'epoch': epoch,
-                    'model_state_dict': discriminator.state_dict(),
-                    'optimizer_state_dict': d_optimizer.state_dict(),
-                    'loss': d_loss}, d_path)
+        if not(test_mode) and epoch % 200 == 199:
+            torch.save(
+                {'epoch': epoch,
+                'model_state_dict': generator.state_dict(),
+                'optimizer_state_dict': g_optimizer.state_dict(),
+                'loss': g_loss}, g_path)
+            
+            
+            torch.save({
+                'epoch': epoch,
+                'model_state_dict': discriminator.state_dict(),
+                'optimizer_state_dict': d_optimizer.state_dict(),
+                'loss': d_loss}, d_path)
                 
                 
     wandb.save(g_path)
