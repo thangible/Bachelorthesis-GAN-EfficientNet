@@ -3,7 +3,7 @@ import numpy as np
 import time
 import torch.optim as optim
 from config.parser_config import config_parser
-from model.cwgan import *
+from older_version.cwgan import *
 import wandb
 from sklearn.model_selection import train_test_split
 from classification_dataset import ClassificationDataset

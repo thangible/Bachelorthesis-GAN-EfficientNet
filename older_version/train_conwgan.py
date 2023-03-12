@@ -2,10 +2,10 @@
 import numpy as np
 import torch
 import torchvision
-from model.conwgan import *
+from older_version.conwgan import *
 from torch.utils.data import DataLoader
 from classification_dataset import ClassificationDataset
-from model.conwgan_utils import *
+from older_version.conwgan_utils import *
 import wandb
 from tqdm import tqdm #te quiero demasio. taqadum
 from config.parser_config import config_parser
@@ -158,9 +158,22 @@ def train(train_dataloader,
             log_imgs = torchvision.utils.make_grid(gen_images)
             grid_images = wandb.Image(log_imgs, caption="Fake images")
             wandb.log({"fake_image": grid_images} )
+            
     #----------------------Save model----------------------
-            torch.save(GENERATOR, output_path + "generator.pt")
-            torch.save(DISCRIMINATOR, output_path + "discriminator.pt")
+    
+    g_path = output_path + "generator.pt"
+    d_path = output_path + "discriminator.pt"
+    torch.save({
+        'model_state_dict': GENERATOR.state_dict(),
+        'optimizer_state_dict': optimizer_g.state_dict()}, g_path)
+    
+    
+    torch.save({
+        'model_state_dict': DISCRIMINATOR.state_dict(),
+        'optimizer_state_dict': optimizer_d.state_dict()}, d_path)
+    
+    torch.save(GENERATOR, g_path)
+    torch.save(DISCRIMINATOR, d_path)
         
 def run(run_name, args):    
     #LOADING DATA
