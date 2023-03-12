@@ -116,10 +116,10 @@ def train(train_dataloader,
             #showMemoryUsage(0)
 
             # final disc cost
-            disc_cost = disc_fake - disc_real + gradient_penalty
+            disc_cost = torch.abs(disc_fake - disc_real) + gradient_penalty
             disc_acgan = errD_real #+ errD_fake
             (disc_cost + ACGAN_SCALE*disc_acgan).backward()
-            w_dist = disc_fake  - disc_real
+            w_dist = torch.abs(disc_fake  - disc_real)
             optimizer_d.step()
             #------------------VISUALIZATION----------
             if i == CRITIC_ITERS-1:
