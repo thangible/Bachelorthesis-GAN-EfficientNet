@@ -32,13 +32,14 @@ def discriminator_train_step(device, batch_size, discriminator, generator, d_opt
     d_optimizer.step()
     return d_loss.data
 
-def generator_train_step(device, batch_size, discriminator, generator, g_optimizer, criterion, class_num, z_size):
+def generator_train_step(device, batch_size, discriminator, generator, g_optimizer, criterion, class_num, edge_labels, z_size):
     # Init gradient
     g_optimizer.zero_grad()    
     # Building z
     z = Variable(torch.randn(batch_size, z_size)).to(device)    
     # Building fake labels
-    fake_labels = Variable(torch.LongTensor(np.random.randint(0, class_num, batch_size))).to(device)    
+    fake_labels = Variable(torch.LongTensor(np.random.choice(a = edge_labels, size = batch_size ))).to(device)  
+    # fake_labels = Variable(torch.LongTensor(np.random.randint(0, class_num, batch_size))).to(device)    
     # Generating fake images
     fake_images = generator(z, fake_labels)    
     # Disciminating fake images
