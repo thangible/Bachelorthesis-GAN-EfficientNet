@@ -37,14 +37,25 @@ if __name__ == "__main__":
     
     
     aug_dict = {}
+    aug_dict['CenterCrop'] = CenterCrop
+    aug_dict['CenterCrop_2'] = CenterCrop_2
+    aug_dict['Rotation'] = Rotation
+    aug_dict['Flip'] = Flip
+    aug_dict['CLAHE'] = CLAHE
+    aug_dict['Sharpen'] = Sharpen
+    aug_dict['ChannelShuffle'] = ChannelShuffle
+    aug_dict['ColorJitter'] = ColorJitter
+    aug_dict['ToGray'] = ToGray
+    aug_dict['ToSepia'] = ToSepia
+    
     aug_dict['MotionBlur'] = A.MotionBlur(blur_limit = 11, p = 1.0)
     aug_dict['Perspective'] = A.Perspective(scale = 0.3, p = 1.0)
     aug_dict['Solarize'] = A.Solarize(threshold = 192, p = 1)
     
-    
+
     for run_name in aug_dict.keys():
         augmentation = aug_dict[run_name]
-        classifier.single_run(args, given_augment = augmentation, run_name = run_name, project_name = 'GOOD CLASSIFIER')
+        classifier.single_run(args, given_augment = augmentation, run_name = run_name, project_name = 'OFFICIAL GOOD CLASSIFIER')
 
     # for run_name in HP:
     #     augmentation = HP[run_name]
