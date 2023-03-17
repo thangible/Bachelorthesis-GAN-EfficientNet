@@ -22,19 +22,6 @@ from  config.parser_config import config_parser
 
 # Hyperparameters etc
 
-transforms = transforms.Compose(
-    [
-        transforms.Resize(IMAGE_SIZE),
-        transforms.ToTensor(),
-        transforms.Normalize(
-            [0.5 for _ in range(CHANNELS_IMG)], [0.5 for _ in range(CHANNELS_IMG)]
-        ),
-    ]
-)
-
-
-
-
 
 
 def train(args):
@@ -49,6 +36,16 @@ def train(args):
     FEATURES_GEN = args.model_dim
     CRITIC_ITERATIONS = 5
     WEIGHT_CLIP = 0.01
+
+    transforms = transforms.Compose(
+    [
+        transforms.Resize(IMAGE_SIZE),
+        transforms.ToTensor(),
+        transforms.Normalize(
+            [0.5 for _ in range(CHANNELS_IMG)], [0.5 for _ in range(CHANNELS_IMG)]
+        ),
+    ]
+)
 
     Rotation = A.Rotate(p=0.9)
     Flip = A.Flip(p=0.5)
@@ -75,13 +72,14 @@ def train(args):
 
     edge_train_data, _ = edge_stratified_split(full_dataset, full_labels = full_dataset._labels, edge_labels = edge_labels,  fraction = 0.8, random_state = 0)                     
     loader = DataLoader(edge_train_data,
-                                    batch_size=args.batch_size, 
+                                    batch_size=BATCH_SIZE, 
                                     shuffle=True,
                                     num_workers=args.num_workers)
 
+    CLASS_NUM = full_dataset._get_num_classes()
     # initialize gen and disc/critic
-    gen = Generator(Z_DIM, CHANNELS_IMG, FEATURES_GEN).to(device)
-    critic = Discriminator(CHANNELS_IMG, FEATURES_CRITIC).to(device)
+    gen = Generator(Z_DIM, CHANNELS_IMG, FEATURES_GEN, CLASS_NUM).to(device)
+    critic = Discriminator(CHANNELS_IMG, FEATURES_CRITIC, CLASS_NUM).to(device)
     initialize_weights(gen)
     initialize_weights(critic)
 
@@ -90,7 +88,7 @@ def train(args):
     opt_critic = optim.RMSprop(critic.parameters(), lr=LEARNING_RATE)
 
     # for tensorboard plotting
-    fixed_noise = torch.randn(args.batch_size, Z_DIM, 1, 1).to(device)
+    fixed_noise = torch.randn(BATCH_SIZE, Z_DIM, 1, 1).to(device)
     step = 0
 
     gen.train()
@@ -98,16 +96,17 @@ def train(args):
 
     for epoch in range(NUM_EPOCHS):
         # Target labels not needed! <3 unsupervised
-        for batch_idx, (data, _) in enumerate(tqdm(loader)):
+        for batch_idx, (data, labels, cat) in enumerate(tqdm(loader)):
             data = data.to(device)
+            labels = labels.to(device)
             cur_batch_size = data.shape[0]
 
             # Train Critic: max E[critic(real)] - E[critic(fake)]
             for _ in range(CRITIC_ITERATIONS):
                 noise = torch.randn(cur_batch_size, Z_DIM, 1, 1).to(device)
-                fake = gen(noise)
-                critic_real = critic(data).reshape(-1)
-                critic_fake = critic(fake).reshape(-1)
+                fake = gen(noise, labels)
+                critic_real = critic(data, labels).reshape(-1)
+                critic_fake = critic(fake, labels).reshape(-1)
                 loss_critic = -(torch.mean(critic_real) - torch.mean(critic_fake))
                 critic.zero_grad()
                 loss_critic.backward(retain_graph=True)
@@ -124,7 +123,7 @@ def train(args):
             loss_gen.backward()
             opt_gen.step()
             
-            wandb.log({"loss_critic": loss_critic, "loss_gen": loss_gen, 'epoch': epoch})
+            
             # Print losses occasionally and print to tensorboard
             if batch_idx % 100 == 0 and batch_idx > 0:
                 gen.eval()
@@ -135,7 +134,7 @@ def train(args):
                 )
 
                 with torch.no_grad():
-                    fake = gen(noise)
+                    fake = gen(noise, labels)
                     # take out (up to) 32 examples
                     img_grid_real = torchvision.utils.make_grid(
                         data[:32], normalize=True
@@ -150,7 +149,8 @@ def train(args):
                 gen.train()
                 critic.train()
                 
-                
+        wandb.log({"loss_critic": loss_critic, "loss_gen": loss_gen, 'epoch': epoch})        
+        
                 
 if __name__ == "__main__":
     #CONFIG PARSER

@@ -3,12 +3,18 @@ import torch.nn as nn
 
 
 class Discriminator(nn.Module):
-    def __init__(self, channels_img, features_d):
+    def __init__(self, channels_img, features_d, class_num):
         super(Discriminator, self).__init__()
+        self.label_emb = nn.Embedding(class_num, class_num)
+        self.class_num = class_num
+        self.label_embed = nn.Sequential(
+            nn.Embedding(self.class_num, self.class_num),
+            nn.Linear(self.class_num, 256*256)
+        )
         self.disc = nn.Sequential(
-            # input: N x channels_img x 64 x 64
+            # input: N x channels_img x 256 x 256
             nn.Conv2d(
-                channels_img, features_d, kernel_size=4, stride=2, padding=1
+                channels_img + 1, features_d, kernel_size=4, stride=2, padding=1
             ),
             nn.LeakyReLU(0.2),
             # _block(in_channels, out_channels, kernel_size, stride, padding)
@@ -20,6 +26,7 @@ class Discriminator(nn.Module):
             # After all _block img output is 4x4 (Conv2d below makes into 1x1)
             nn.Conv2d(features_d * 32, 1, kernel_size=4, stride=2, padding=0),
         )
+        
 
     def _block(self, in_channels, out_channels, kernel_size, stride, padding):
         return nn.Sequential(
@@ -35,9 +42,12 @@ class Discriminator(nn.Module):
             nn.LeakyReLU(0.2),
         )
 
-    def forward(self, x):
-        return self.disc(x)
 
+    def forward(self, images, labels):
+        images = images.view(-1, 3, 256, 256)
+        encoded_labels = self.label_embed(labels).view(-1, 1, 256, 256) 
+        x = torch.cat([images, encoded_labels], axis = 1)
+        return self.disc(x)
 
 
 class Generator(nn.Module):
@@ -93,12 +103,13 @@ def initialize_weights(model):
 
 
 def test():
-    N, in_channels, H, W = 8, 3, 64, 64
+    N, in_channels, H, W, class_num = 8, 3, 256, 256, 128
     noise_dim = 100
     x = torch.randn((N, in_channels, H, W))
-    disc = Discriminator(in_channels, 8)
-    assert disc(x).shape == (N, 1, 1, 1), "Discriminator test failed"
-    gen = Generator(noise_dim, in_channels, 8)
+    labels = label = torch.randint(low = 0, high = 5, size= (N, 1))
+    disc = Discriminator(in_channels, 8, class_num)
+    assert disc(x,labels).shape == (N, 1, 1, 1), "Discriminator test failed"
+    gen = Generator(noise_dim, in_channels, 8, class_num)
     z = torch.randn((N, noise_dim, 1, 1))
     assert gen(z).shape == (N, in_channels, H, W), "Generator test failed"
     print("Success, tests passed!")
