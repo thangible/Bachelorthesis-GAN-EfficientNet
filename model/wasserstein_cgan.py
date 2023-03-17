@@ -88,8 +88,6 @@ class Generator(nn.Module):
     def forward(self, noise, labels):
         labels = self.label_emb(labels).view(-1, self.class_num, 1, 1)
         noise = noise.view(-1, self.channels_noise, 1, 1)
-        print(noise.shape)
-        print(labels.shape)
         x = torch.cat([noise, labels], axis = 1)
         x = x.reshape(-1, self.channels_noise + self.class_num, 1, 1)
         return self.net(x)
