@@ -37,7 +37,7 @@ def train(args):
     CRITIC_ITERATIONS = 5
     WEIGHT_CLIP = 0.01
 
-    transforms = transforms.Compose(
+    TRANSFORMATIONS = transforms.Compose(
     [
         transforms.Resize(IMAGE_SIZE),
         transforms.ToTensor(),
@@ -59,7 +59,7 @@ def train(args):
         image_path= args.image_path,
         label_path= args.label_path,
         size = args.size,
-        normalize=True)
+        normalize= True)
 
     edge_classes = ["Gryllteiste","Schnatterente","Buchfink","unbestimmte Larusmöwe",
                         "Schmarotzer/Spatel/Falkenraubmöwe","Brandgans","Wasserlinie mit Großalgen",

@@ -99,9 +99,9 @@ class ClassificationDataset(Dataset):
         #AUGMENTATION
         if self._augmentation:
             image = self._augmentation(image = image.astype(np.uint8))['image']
-        if self._normalize:
-            image = (image - 127.5)/ 127.5
         image = transforms.ToTensor()(image)
+        if self._normalize:
+            image = transforms.Normalize([0.5 for _ in range(3)], [0.5 for _ in range(3)])(image)
         #RESIZE
         if self._size != image.shape[0]:
             image = self._resize(image)
