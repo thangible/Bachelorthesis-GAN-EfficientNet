@@ -115,7 +115,7 @@ def train(args):
             
             
             # Print losses occasionally and print to tensorboard
-            if batch_idx % 50 == 0 and batch_idx > 0:
+            if batch_idx % 50 == 0:
                 GEN.eval()
                 CRITIC.eval()
                 print(
@@ -126,6 +126,8 @@ def train(args):
                 with torch.no_grad():
                     fake = GEN(noise, labels)
                     # take out (up to) 32 examples
+                    # data = torch.round(img_grid_real*127.5 + 127.5).float()
+                    # fake = torch.round(fake*127.5 + 127.5).float()
                     img_grid_real = torchvision.utils.make_grid(
                         data[:32], normalize=True
                     )

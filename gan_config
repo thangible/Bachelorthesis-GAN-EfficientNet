@@ -4,5 +4,5 @@ size = 256
 epochs = 1000
 lr = 1e-2
 batch_size = 8
-model_dim = 256
+model_dim = 128
 latent_size = 100
