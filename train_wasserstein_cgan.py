@@ -115,7 +115,7 @@ def train(args):
             
             
             # Print losses occasionally and print to tensorboard
-            if batch_idx % 100 == 0 and batch_idx > 0:
+            if batch_idx % 50 == 0 and batch_idx > 0:
                 GEN.eval()
                 CRITIC.eval()
                 print(
@@ -132,8 +132,11 @@ def train(args):
                     img_grid_fake = torchvision.utils.make_grid(
                         fake[:32], normalize=True
                     )
-                    wandb.log({'Real Image': img_grid_real, 'epoch':step})
-                    wandb.log({'Real Image': img_grid_fake, 'epoch':step})
+                    img_to_log_real = wandb.Image(img_grid_real, caption="samples")
+                    img_to_log_fake = wandb.Image(img_grid_fake, caption="samples")
+                    
+                    wandb.log({'Real Image': img_to_log_real, 'epoch':step})
+                    wandb.log({'Fake Image': img_to_log_fake, 'epoch':step})
 
                 step += 1
                 GEN.train()
