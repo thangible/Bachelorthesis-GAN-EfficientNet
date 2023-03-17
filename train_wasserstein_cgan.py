@@ -138,7 +138,7 @@ def train(args):
                 step += 1
                 GEN.train()
                 CRITIC.train()
-                
+        
         wandb.log({"loss_critic": loss_critic, "loss_gen": loss_gen, 'epoch': epoch})        
         
                 
@@ -146,4 +146,21 @@ if __name__ == "__main__":
     #CONFIG PARSER
     parser = config_parser()
     args  = parser.parse_args()
+    run_name = 'TRAIN cGAN'+ ', dim:{}, lr: {}, epochs: {}, size: {}'.format(args.model_dim, args.lr, args. epochs, args.size)
+    # wandb.init(mode="disabled") 
+    wandb_mode = None
+    if args.test:
+        wandb_mode = 'disabled'
+    wandb.init(project="NEW WASSERSTEIN GAN", mode = wandb_mode) 
+    wandb.run.name = run_name
+    wandb.config = {'epochs' : args.epochs, 
+    'run_name' : run_name,
+    'npz_path' :args.npz_path,
+    'image_path' : args.image_path,
+    'label_path' : args.label_path,
+    'img_size' : args.size,
+    'lr' : args.lr,
+    'batch_size': args.batch_size,
+    'model_dim': args.model_dim,
+    'latent_size' : args.latent_size}
     train(args)
