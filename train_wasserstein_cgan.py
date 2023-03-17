@@ -37,16 +37,6 @@ def train(args):
     CRITIC_ITERATIONS = 5
     WEIGHT_CLIP = 0.01
 
-    TRANSFORMATIONS = transforms.Compose(
-    [
-        transforms.Resize(IMAGE_SIZE),
-        transforms.ToTensor(),
-        transforms.Normalize(
-            [0.5 for _ in range(CHANNELS_IMG)], [0.5 for _ in range(CHANNELS_IMG)]
-        ),
-    ]
-)
-
     Rotation = A.Rotate(p=0.9)
     Flip = A.Flip(p=0.5)
     Augmentation = A.Compose([Rotation, Flip])
@@ -78,21 +68,21 @@ def train(args):
 
     CLASS_NUM = full_dataset._get_num_classes()
     # initialize gen and disc/critic
-    gen = Generator(Z_DIM, CHANNELS_IMG, FEATURES_GEN, CLASS_NUM).to(device)
-    critic = Discriminator(CHANNELS_IMG, FEATURES_CRITIC, CLASS_NUM).to(device)
-    initialize_weights(gen)
-    initialize_weights(critic)
+    GEN = Generator(Z_DIM, CHANNELS_IMG, FEATURES_GEN, CLASS_NUM).to(device)
+    CRITIC = Discriminator(CHANNELS_IMG, FEATURES_CRITIC, CLASS_NUM).to(device)
+    initialize_weights(GEN)
+    initialize_weights(CRITIC)
 
     # initializate optimizer
-    opt_gen = optim.RMSprop(gen.parameters(), lr=LEARNING_RATE)
-    opt_critic = optim.RMSprop(critic.parameters(), lr=LEARNING_RATE)
+    opt_gen = optim.RMSprop(GEN.parameters(), lr=LEARNING_RATE)
+    opt_critic = optim.RMSprop(CRITIC.parameters(), lr=LEARNING_RATE)
 
     # for tensorboard plotting
     fixed_noise = torch.randn(BATCH_SIZE, Z_DIM, 1, 1).to(device)
     step = 0
 
-    gen.train()
-    critic.train()
+    GEN.train()
+    CRITIC.train()
 
     for epoch in range(NUM_EPOCHS):
         # Target labels not needed! <3 unsupervised
@@ -104,37 +94,37 @@ def train(args):
             # Train Critic: max E[critic(real)] - E[critic(fake)]
             for _ in range(CRITIC_ITERATIONS):
                 noise = torch.randn(cur_batch_size, Z_DIM, 1, 1).to(device)
-                fake = gen(noise, labels)
-                critic_real = critic(data, labels).reshape(-1)
-                critic_fake = critic(fake, labels).reshape(-1)
+                fake = GEN(noise, labels)
+                critic_real = CRITIC(data, labels).reshape(-1)
+                critic_fake = CRITIC(fake, labels).reshape(-1)
                 loss_critic = -(torch.mean(critic_real) - torch.mean(critic_fake))
-                critic.zero_grad()
+                CRITIC.zero_grad()
                 loss_critic.backward(retain_graph=True)
                 opt_critic.step()
 
                 # clip critic weights between -0.01, 0.01
-                for p in critic.parameters():
+                for p in CRITIC.parameters():
                     p.data.clamp_(-WEIGHT_CLIP, WEIGHT_CLIP)
 
             # Train Generator: max E[critic(gen_fake)] <-> min -E[critic(gen_fake)]
-            gen_fake = critic(fake).reshape(-1)
+            gen_fake = CRITIC(fake, labels).reshape(-1)
             loss_gen = -torch.mean(gen_fake)
-            gen.zero_grad()
+            GEN.zero_grad()
             loss_gen.backward()
             opt_gen.step()
             
             
             # Print losses occasionally and print to tensorboard
             if batch_idx % 100 == 0 and batch_idx > 0:
-                gen.eval()
-                critic.eval()
+                GEN.eval()
+                CRITIC.eval()
                 print(
                     f"Epoch [{epoch}/{NUM_EPOCHS}] Batch {batch_idx}/{len(loader)} \
                     Loss D: {loss_critic:.4f}, loss G: {loss_gen:.4f}"
                 )
 
                 with torch.no_grad():
-                    fake = gen(noise, labels)
+                    fake = GEN(noise, labels)
                     # take out (up to) 32 examples
                     img_grid_real = torchvision.utils.make_grid(
                         data[:32], normalize=True
@@ -146,8 +136,8 @@ def train(args):
                     wandb.log({'Real Image': img_grid_fake, 'epoch':step})
 
                 step += 1
-                gen.train()
-                critic.train()
+                GEN.train()
+                CRITIC.train()
                 
         wandb.log({"loss_critic": loss_critic, "loss_gen": loss_gen, 'epoch': epoch})        
         
