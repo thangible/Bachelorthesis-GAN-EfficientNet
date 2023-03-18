@@ -19,6 +19,7 @@ from classification_dataset import ClassificationDataset
 import albumentations as A 
 import wandb
 from  config.parser_config import config_parser
+import os
 
 # Hyperparameters etc
 
@@ -34,7 +35,7 @@ def train(args):
     NUM_EPOCHS = args.epochs
     FEATURES_CRITIC = args.model_dim
     FEATURES_GEN = args.model_dim
-    CRITIC_ITERATIONS = 5
+    CRITIC_ITERATIONS = 7
     WEIGHT_CLIP = 0.01
 
     Rotation = A.Rotate(p=0.9)
@@ -80,7 +81,9 @@ def train(args):
     # for tensorboard plotting
     fixed_noise = torch.randn(BATCH_SIZE, Z_DIM, 1, 1).to(device)
     step = 0
-
+    log_dir = './saved_models/wasserstein_gan'
+    d_path = os.path.join(log_dir,'discriminator_{}.pt'.format("_".join(run_name.split(" "))))
+    g_path = os.path.join(log_dir,'generator_{}.pt'.format("_".join(run_name.split(" "))))
     GEN.train()
     CRITIC.train()
 
@@ -144,7 +147,25 @@ def train(args):
                 GEN.train()
                 CRITIC.train()
         
-        wandb.log({"loss_critic": loss_critic, "loss_gen": loss_gen, 'epoch': epoch})        
+        
+        if epoch % 200 == 199:
+            torch.save(
+                {'epoch': epoch,
+                'model_state_dict': GEN.state_dict(),
+                'optimizer_state_dict': opt_gen.state_dict(),
+                'loss': loss_gen}, g_path)
+            
+            
+            torch.save({
+                'epoch': epoch,
+                'model_state_dict': CRITIC.state_dict(),
+                'optimizer_state_dict': opt_critic.state_dict(),
+                'loss': loss_critic}, d_path)
+        
+        wandb.log({"loss_critic": loss_critic, "loss_gen": loss_gen, 'epoch': epoch})
+             
+    wandb.save(g_path)
+    wandb.save(d_path)
         
                 
 if __name__ == "__main__":
