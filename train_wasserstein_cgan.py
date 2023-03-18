@@ -25,7 +25,7 @@ import os
 
 
 
-def train(args):
+def train(args, run_name):
     device = "cuda" if torch.cuda.is_available() else "cpu"
     LEARNING_RATE = args.lr
     BATCH_SIZE = args.batch_size
@@ -148,7 +148,7 @@ def train(args):
                 CRITIC.train()
         
         
-        if epoch % 200 == 199:
+        if epoch % 100 == 0:
             torch.save(
                 {'epoch': epoch,
                 'model_state_dict': GEN.state_dict(),
@@ -189,4 +189,4 @@ if __name__ == "__main__":
     'batch_size': args.batch_size,
     'model_dim': args.model_dim,
     'latent_size' : args.latent_size}
-    train(args)
+    train(args, run_name)
