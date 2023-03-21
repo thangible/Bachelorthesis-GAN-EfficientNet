@@ -183,25 +183,26 @@ def edge_valid_classifier(model, num_classes, loader_test, device, is_last_epoch
         # predict
         predicted = model(img.float())
         predicted = predicted.to(device)
-        edge_accuracy.update(preds=predicted, target=label)
-        edge_f1score.update(preds=predicted, target=label)
-        edge_precision.update(preds=predicted, target=label)
-        edge_recall.update(preds=predicted, target=label)
+        if len(label) > 0:
+            edge_accuracy.update(preds=predicted, target=label)
+            edge_f1score.update(preds=predicted, target=label)
+            edge_precision.update(preds=predicted, target=label)
+            edge_recall.update(preds=predicted, target=label)
 
-        for i in range(img.shape[0]):
-        #load
-            top_3_label = torch.topk(predicted[i].flatten(), 3).indices
-            top_3_cat = [get_cat_from_label(label) for label in top_3_label]
-            edge_img_to_log = wandb.Image(img[i,...], 
-                                caption="P_label:[1]-{}\n[2]-{}\n[3]-{} \n  T_label: {} \n  \n  P_cat: [1]-{}\n[2]-{}\n[3]-{} \n  T_cat: {}".format(top_3_label[0],
-                                                                                                        top_3_label[1],
-                                                                                                        top_3_label[2],
-                                                                                                label[i],
-                                                                                                top_3_cat[0],
-                                                                                                top_3_cat[1],
-                                                                                                top_3_cat[2],
-                                                                                                cat[i]))
-            wandb.log({"EDGE CASE": edge_img_to_log})
+            for i in range(img.shape[0]):
+            #load
+                top_3_label = torch.topk(predicted[i].flatten(), 3).indices
+                top_3_cat = [get_cat_from_label(label) for label in top_3_label]
+                edge_img_to_log = wandb.Image(img[i,...], 
+                                    caption="P_label:[1]-{}\n[2]-{}\n[3]-{} \n  T_label: {} \n  \n  P_cat: [1]-{}\n[2]-{}\n[3]-{} \n  T_cat: {}".format(top_3_label[0],
+                                                                                                            top_3_label[1],
+                                                                                                            top_3_label[2],
+                                                                                                    label[i],
+                                                                                                    top_3_cat[0],
+                                                                                                    top_3_cat[1],
+                                                                                                    top_3_cat[2],
+                                                                                                    cat[i]))
+                wandb.log({"EDGE CASE": edge_img_to_log})
     edge_avg_acc = edge_accuracy.compute()
     edge_avg_f1 = edge_f1score.compute()
     edge_avg_precision = edge_precision.compute()
