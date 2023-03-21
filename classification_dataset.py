@@ -162,8 +162,8 @@ class ClassificationDataset(Dataset):
         info = pd.read_csv(gan_info, index_col=False)
         image_names = info.image_name.tolist()
         categories = info.category.tolist()
-        self._image_names = np.concatenate((self._image_names, image_names))
-        self._categories = np.concatenate((self._categories, categories))
+        self._image_names = np.concatenate((self._image_names, image_names)).tolist()
+        self._categories = np.concatenate((self._categories, categories)).tolist()
         labels = self._le.transform(categories)
-        self._labels = np.concatenate((self._labels, labels))
+        self._labels = np.concatenate((self._labels, labels)).tolist()
         self._gan_dir = gan_dir
