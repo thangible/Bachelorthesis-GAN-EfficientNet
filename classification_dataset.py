@@ -40,6 +40,8 @@ class ClassificationDataset(Dataset):
         self._augmentation = augmentation
         self._one_hot = one_hot
         self._normalize = normalize
+        self._le = None
+        self._gan_dir= None
         
         #LOADER
         if self._npz_path:
@@ -79,6 +81,7 @@ class ClassificationDataset(Dataset):
         le = preprocessing.LabelEncoder()
         name = data['name']
         le.fit(name)
+        self._le = le
         le_name_mapping = dict(zip(le.classes_, le.transform(le.classes_)))
         data['label'] = le.transform(name)
         data = data.sort_values(by=['file'][:-4],ascending=False)
@@ -95,7 +98,11 @@ class ClassificationDataset(Dataset):
         else:
           image_name = self._image_names[index]
           path = PurePath(self._image_path, image_name)
-          image = cv2.imread(str(path))
+          if path.exists():
+            image = cv2.imread(str(path))
+          else:
+            gan_path = PurePath(self._gan_dir, image_name)
+            image = cv2.imread(str(gan_path))
         #AUGMENTATION
         if self._augmentation:
             image = self._augmentation(image = image.astype(np.uint8))['image']
@@ -151,4 +158,9 @@ class ClassificationDataset(Dataset):
         index = self._categories.index(cat)
         return self._labels[index]
     
-    
+    def _extend(self, gan_dir, image_names, categories):
+        self._image_names = np.concatenate((self._image_names, image_names))
+        self._categories = np.concatenate((self._categories, categories))
+        labels = self._le.transform(categories)
+        self._labels = np.concatenate((self._labels, labels))
+        self._gan_dir = gan_dir

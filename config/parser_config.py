@@ -1,5 +1,4 @@
 import configargparse
-import json
 
 def config_parser():
     parser = configargparse.ArgumentParser()
