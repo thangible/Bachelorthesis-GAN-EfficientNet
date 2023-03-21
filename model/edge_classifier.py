@@ -76,6 +76,14 @@ def main(
                                        shuffle=True,
                                        num_workers=num_workers)
     
+    EDGE_CATS = ["Gryllteiste","Schnatterente","Buchfink","unbestimmte Larusmöwe",
+                        "Schmarotzer/Spatel/Falkenraubmöwe","Brandgans","Wasserlinie mit Großalgen",
+                        "Feldlerche","Schmarotzerraubmöwe","Grosser Brachvogel","unbestimmte Raubmöwe",
+                        "Turmfalke","Trauerseeschwalbe","unbestimmter Schwan",
+                        "Sperber","Kiebitzregenpfeifer",
+                        "Skua","Graugans","unbestimmte Krähe"]
+    
+    EDGE_LABELS = [full_dataset._get_label_from_cat(cat) for cat in EDGE_CATS]
         
     # define device
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -159,43 +167,20 @@ def main(
             device=device,
             is_last_epoch_flag= is_last_epoch_flag,
             epoch = e,
-            get_cat_from_label = get_cat_from_label)
+            get_cat_from_label = get_cat_from_label,
+            EDGE_LABELS = EDGE_LABELS)
     
-def edge_valid_classifier(model, num_classes, loader_test, device, is_last_epoch_flag, epoch, get_cat_from_label):
+
+def edge_valid_classifier(model, num_classes, loader_test, device, is_last_epoch_flag, epoch, get_cat_from_label, EDGE_LABELS):
     edge_accuracy = MulticlassAccuracy(num_classes=num_classes, top_k=1).to(device)
     edge_f1score = MulticlassF1Score(num_classes=num_classes).to(device)
     edge_precision = MulticlassPrecision(num_classes=num_classes).to(device)
     edge_recall = MulticlassRecall(num_classes=num_classes).to(device)
 
-    EDGE_CATS = ["Gryllteiste",
-                    "Offshore Windpark",
-                    "Schnatterente",
-                    "Buchfink",
-                    "unbestimmte Larusmöwe",
-                    "Fischereigerät (Schwimmer)",
-                    "Schmarotzer/Spatel/Falkenraubmöwe",
-                    "Brandgans",
-                    "Wasserlinie mit Großalgen",
-                    "unbestimmte Art",
-                    "Feldlerche",
-                    "Schmarotzerraubmöwe",
-                    "Grosser Brachvogel",
-                    "Öl",
-                    "unbestimmte Raubmöwe",
-                    "Turmfalke",
-                    "Trauerseeschwalbe",
-                    "Front ",
-                    "unbestimmter Schwan",
-                    "Boot (unbestimmtes kleines Boot)",
-                    "Tonne",
-                    "Sperber",
-                    "Kiebitzregenpfeifer",
-                    "Skua",
-                    "Graugans",
-                    "Freizeitfahrzeug ",
-                    "unbestimmte Krähe"]
+    
+
     for img, label, cat in loader_test:
-        if cat in EDGE_CATS:
+        if label in EDGE_LABELS:
             #load
             img = img.to(device)
             label = label.to(device)
