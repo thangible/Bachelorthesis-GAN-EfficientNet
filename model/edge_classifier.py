@@ -13,7 +13,7 @@ from augmentation import  aug_transform
 from tqdm import tqdm #te quiero demasio. taqadum
 from classification_dataset import ClassificationDataset
 from pathlib import Path
-from dataset_utils import stratified_split
+from dataset_utils import stratified_split, edge_stratified_split
 
 def main(
     run_name: str,
@@ -60,10 +60,16 @@ def main(
     # train_data, validation_data = torch.utils.data.random_split(full_dataset, [train_size, valid_size],
     #                                                               generator=torch.Generator().manual_seed(0))
     
-    train_data, train_set_labels, validation_data, test_set_labels = stratified_split(dataset = full_dataset, 
-                                                                                            labels = full_dataset._labels,
-                                                                                            fraction = 0.8,
-                                                                                            random_state=0)
+    edge_classes = ["Gryllteiste","Schnatterente","Buchfink","unbestimmte Larusmöwe",
+                        "Schmarotzer/Spatel/Falkenraubmöwe","Brandgans","Wasserlinie mit Großalgen",
+                        "Feldlerche","Schmarotzerraubmöwe","Grosser Brachvogel","unbestimmte Raubmöwe",
+                        "Turmfalke","Trauerseeschwalbe","unbestimmter Schwan",
+                        "Sperber","Kiebitzregenpfeifer",
+                        "Skua","Graugans","unbestimmte Krähe"]
+    
+    edge_labels = [full_dataset._get_label_from_cat(cat) for cat in edge_classes]
+    
+    train_data, validation_data = edge_stratified_split(full_dataset, full_labels = full_dataset._labels, edge_labels = edge_labels,  fraction = 0.8, random_state = 0)                
     
 
     train_dataloader = DataLoader(train_data,
@@ -76,15 +82,6 @@ def main(
                                        shuffle=True,
                                        num_workers=num_workers)
     
-    EDGE_CATS = ["Gryllteiste","Schnatterente","Buchfink","unbestimmte Larusmöwe",
-                        "Schmarotzer/Spatel/Falkenraubmöwe","Brandgans","Wasserlinie mit Großalgen",
-                        "Feldlerche","Schmarotzerraubmöwe","Grosser Brachvogel","unbestimmte Raubmöwe",
-                        "Turmfalke","Trauerseeschwalbe","unbestimmter Schwan",
-                        "Sperber","Kiebitzregenpfeifer",
-                        "Skua","Graugans","unbestimmte Krähe"]
-    
-    EDGE_LABELS = [full_dataset._get_label_from_cat(cat) for cat in EDGE_CATS]
-        
     # define device
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
@@ -160,59 +157,63 @@ def main(
     #         'loss': LOSS,
     #         'name': run_name
     #         }, SAVE_PATH)
-        edge_valid_classifier(
-            model = MODEL,
-            num_classes=num_classes,
-            loader_test=validation_dataloader,
-            device=device,
-            is_last_epoch_flag= is_last_epoch_flag,
-            epoch = e,
-            get_cat_from_label = get_cat_from_label,
-            EDGE_LABELS = EDGE_LABELS)
+        # edge_valid_classifier(
+        #     model = MODEL,
+        #     num_classes=num_classes,
+        #     loader_test=validation_dataloader,
+        #     device=device,
+        #     is_last_epoch_flag= is_last_epoch_flag,
+        #     epoch = e,
+        #     get_cat_from_label = get_cat_from_label,
+        #     EDGE_LABELS = EDGE_LABELS)
     
 
-def edge_valid_classifier(model, num_classes, loader_test, device, is_last_epoch_flag, epoch, get_cat_from_label, EDGE_LABELS):
-    edge_accuracy = MulticlassAccuracy(num_classes=num_classes, top_k=1).to(device)
-    edge_f1score = MulticlassF1Score(num_classes=num_classes).to(device)
-    edge_precision = MulticlassPrecision(num_classes=num_classes).to(device)
-    edge_recall = MulticlassRecall(num_classes=num_classes).to(device)
-
+# def edge_valid_classifier(model, num_classes, loader_test, device, is_last_epoch_flag, epoch, get_cat_from_label, EDGE_LABELS):
+#     edge_accuracy = MulticlassAccuracy(num_classes=num_classes, top_k=1).to(device)
+#     edge_f1score = MulticlassF1Score(num_classes=num_classes).to(device)
+#     edge_precision = MulticlassPrecision(num_classes=num_classes).to(device)
+#     edge_recall = MulticlassRecall(num_classes=num_classes).to(device)
     
 
-    for img, label, cat in loader_test:
-        if label in EDGE_LABELS:
-            #load
-            img = img.to(device)
-            label = label.to(device)
-            # predict
-            predicted = model(img.float())
-            predicted = predicted.to(device)
-            edge_accuracy.update(preds=predicted, target=label)
-            edge_f1score.update(preds=predicted, target=label)
-            edge_precision.update(preds=predicted, target=label)
-            edge_recall.update(preds=predicted, target=label)
+#     for img, label, cat in loader_test:
+#         edge_indices = []
 
-            for i in range(img.shape[0]):
-                top_3_label = torch.topk(predicted[i].flatten(), 3).indices
-                top_3_cat = [get_cat_from_label(label) for label in top_3_label]
-                edge_img_to_log = wandb.Image(img[i,...], 
-                                    caption="P_label:[1]-{}\n[2]-{}\n[3]-{} \n  T_label: {} \n  \n  P_cat: [1]-{}\n[2]-{}\n[3]-{} \n  T_cat: {}".format(top_3_label[0],
-                                                                                                            top_3_label[1],
-                                                                                                            top_3_label[2],
-                                                                                                    label[i],
-                                                                                                    top_3_cat[0],
-                                                                                                    top_3_cat[1],
-                                                                                                    top_3_cat[2],
-                                                                                                    cat[i]))
-                wandb.log({"EDGE CASE": edge_img_to_log})
-    edge_avg_acc = edge_accuracy.compute()
-    edge_avg_f1 = edge_f1score.compute()
-    edge_avg_precision = edge_precision.compute()
-    edge_avg_recall = edge_recall.compute()
-    wandb.log({"edge_accuracy": edge_avg_acc, 'epoch': epoch})
-    wandb.log({"edge_f1score": edge_avg_f1, 'epoch': epoch})
-    wandb.log({"edge_precision": edge_avg_precision, 'epoch': epoch})
-    wandb.log({"edge_recall": edge_avg_recall, 'epoch': epoch})
+#         for i in range(img.shape[0]):
+#             edge_label =  torch.empty()
+#             if label[i] in EDGE_LABELS:
+            
+#             #load
+#             img = img.to(device)
+#             label = label.to(device)
+#             # predict
+#             predicted = model(img.float())
+#             predicted = predicted.to(device)
+#             edge_accuracy.update(preds=predicted, target=label)
+#             edge_f1score.update(preds=predicted, target=label)
+#             edge_precision.update(preds=predicted, target=label)
+#             edge_recall.update(preds=predicted, target=label)
+
+            
+#                 top_3_label = torch.topk(predicted[i].flatten(), 3).indices
+#                 top_3_cat = [get_cat_from_label(label) for label in top_3_label]
+#                 edge_img_to_log = wandb.Image(img[i,...], 
+#                                     caption="P_label:[1]-{}\n[2]-{}\n[3]-{} \n  T_label: {} \n  \n  P_cat: [1]-{}\n[2]-{}\n[3]-{} \n  T_cat: {}".format(top_3_label[0],
+#                                                                                                             top_3_label[1],
+#                                                                                                             top_3_label[2],
+#                                                                                                     label[i],
+#                                                                                                     top_3_cat[0],
+#                                                                                                     top_3_cat[1],
+#                                                                                                     top_3_cat[2],
+#                                                                                                     cat[i]))
+#                 wandb.log({"EDGE CASE": edge_img_to_log})
+#     edge_avg_acc = edge_accuracy.compute()
+#     edge_avg_f1 = edge_f1score.compute()
+#     edge_avg_precision = edge_precision.compute()
+#     edge_avg_recall = edge_recall.compute()
+#     wandb.log({"edge_accuracy": edge_avg_acc, 'epoch': epoch})
+#     wandb.log({"edge_f1score": edge_avg_f1, 'epoch': epoch})
+#     wandb.log({"edge_precision": edge_avg_precision, 'epoch': epoch})
+#     wandb.log({"edge_recall": edge_avg_recall, 'epoch': epoch})
 
 
     
