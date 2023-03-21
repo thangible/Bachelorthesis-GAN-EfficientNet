@@ -14,6 +14,7 @@ from tqdm import tqdm #te quiero demasio. taqadum
 from classification_dataset import ClassificationDataset
 from pathlib import Path
 from dataset_utils import stratified_split, edge_stratified_split
+import numpy as np
 
 def main(
     run_name: str,
@@ -176,7 +177,7 @@ def edge_valid_classifier(model, num_classes, loader_test, device, is_last_epoch
     for img, label, cat in loader_test:
         mask = sum(label==i for i in edge_labels).bool()
         indices = torch.nonzero(mask).flatten()
-        cat  = torch.Tensor(cat)[indices]
+        cat  = np.array(cat)[mask]
         img = img[indices].to(device)
         label = label[indices].to(device)
         # predict
