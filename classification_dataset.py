@@ -1,6 +1,6 @@
 from torch.utils.data import Dataset
 from torchvision import transforms
-from pathlib import PurePath
+from pathlib import PurePath, Path
 import torch.nn.functional as Functional
 import numpy as np
 import torch
@@ -97,7 +97,7 @@ class ClassificationDataset(Dataset):
             image =  self._images[index]
         else:
           image_name = self._image_names[index]
-          path = PurePath(self._image_path, image_name)
+          path = Path(self._image_path, image_name)
           if path.exists():
             image = cv2.imread(str(path))
           else:
