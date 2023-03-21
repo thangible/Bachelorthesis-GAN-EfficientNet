@@ -152,7 +152,7 @@ def main(
     #         'loss': LOSS,
     #         'name': run_name
     #         }, SAVE_PATH)
-        valid_classifier(
+        edge_valid_classifier(
             model = MODEL,
             num_classes=num_classes,
             loader_test=validation_dataloader,
@@ -229,7 +229,7 @@ def edge_valid_classifier(model, num_classes, loader_test, device, is_last_epoch
     wandb.log({"edge_precision": edge_avg_precision, 'epoch': epoch})
     wandb.log({"edge_recall": edge_avg_recall, 'epoch': epoch})
 
-    
+
     
     
 def valid_classifier(model, num_classes, loader_test, device, is_last_epoch_flag, epoch, get_cat_from_label):
