@@ -158,7 +158,10 @@ class ClassificationDataset(Dataset):
         index = self._categories.index(cat)
         return self._labels[index]
     
-    def _extend(self, gan_dir, image_names, categories):
+    def _extend(self, gan_dir, gan_info):
+        info = pd.read_csv(gan_info, index_col=False)
+        image_names = info.image_name.tolist()
+        categories = info.category.tolist()
         self._image_names = np.concatenate((self._image_names, image_names))
         self._categories = np.concatenate((self._categories, categories))
         labels = self._le.transform(categories)
