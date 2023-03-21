@@ -1,0 +1,8 @@
+label_path = "/Users/thang/Documents/Thang/data_preprocessing/segmentation_masks/manual_annotated_data.csv"
+image_path = "/Users/thang/Documents/Thang/data_preprocessing/segmentation_masks/JPEGImages"
+size = 256
+epochs = 5000
+lr = 1e-3
+batch_size = 8
+model_dim = 128
+latent_size = 100
