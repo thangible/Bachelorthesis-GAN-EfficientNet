@@ -175,9 +175,10 @@ def edge_valid_classifier(model, num_classes, loader_test, device, is_last_epoch
 
     for img, label, cat in loader_test:
         mask = sum(label==i for i in edge_labels).bool()
-        cat  = cat[mask]
-        img = img[mask].to(device)
-        label = label[mask].to(device)
+        indices = torch.nonzero(mask).flatten()
+        cat  = cat[indices]
+        img = img[indices].to(device)
+        label = label[indices].to(device)
         # predict
         predicted = model(img.float())
         predicted = predicted.to(device)
