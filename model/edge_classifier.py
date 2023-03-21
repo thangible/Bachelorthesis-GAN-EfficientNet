@@ -51,7 +51,7 @@ def main(
         size = img_size)
     
 
-    full_dataset._extend(gan_dir=gan_dir, gan_info=gan_info)
+    # full_dataset._extend(gan_dir=gan_dir, gan_info=gan_info)
 
     get_cat_from_label = full_dataset._get_cat_from_label
     num_classes = full_dataset._get_num_classes()
@@ -169,10 +169,14 @@ def main(
 
 def edge_valid_classifier(model, num_classes, loader_test, device, is_last_epoch_flag, epoch, get_cat_from_label, edge_labels):
     edge_accuracy = MulticlassAccuracy(num_classes=num_classes, top_k=1).to(device)
-    edge_f1score = MulticlassF1Score(num_classes=num_classes).to(device)
-    edge_precision = MulticlassPrecision(num_classes=num_classes).to(device)
-    edge_recall = MulticlassRecall(num_classes=num_classes).to(device)
+    edge_f1score = MulticlassF1Score(num_classes=num_classes, top_k=1).to(device)
+    edge_precision = MulticlassPrecision(num_classes=num_classes, top_k=1).to(device)
+    edge_recall = MulticlassRecall(num_classes=num_classes, top_k=1).to(device)
     
+    edge_accuracy_top3 = MulticlassAccuracy(num_classes=num_classes, top_k=3).to(device)
+    edge_f1score_top3 = MulticlassF1Score(num_classes=num_classes, top_k=3).to(device)
+    edge_precision_top3 = MulticlassPrecision(num_classes=num_classes, top_k=3).to(device)
+    edge_recall_top3 = MulticlassRecall(num_classes=num_classes, top_k=3).to(device)
 
     for img, label, cat in loader_test:
         mask = sum(label==i for i in edge_labels).bool()
@@ -188,6 +192,10 @@ def edge_valid_classifier(model, num_classes, loader_test, device, is_last_epoch
             edge_f1score.update(preds=predicted, target=label)
             edge_precision.update(preds=predicted, target=label)
             edge_recall.update(preds=predicted, target=label)
+            edge_accuracy_top3.update(preds=predicted, target=label)
+            edge_f1score_top3.update(preds=predicted, target=label)
+            edge_precision_top3.update(preds=predicted, target=label)
+            edge_recall_top3.update(preds=predicted, target=label)
 
             for i in range(img.shape[0]):
             #load
@@ -207,10 +215,22 @@ def edge_valid_classifier(model, num_classes, loader_test, device, is_last_epoch
     edge_avg_f1 = edge_f1score.compute()
     edge_avg_precision = edge_precision.compute()
     edge_avg_recall = edge_recall.compute()
+
+    edge_avg_acc_top3 = edge_accuracy_top3.compute()
+    edge_avg_f1_top3 = edge_f1score_top3.compute()
+    edge_avg_precision_top3 = edge_precision_top3.compute()
+    edge_avg_recall_top3 = edge_recall_top3.compute()
+
     wandb.log({"edge_accuracy": edge_avg_acc, 'epoch': epoch})
     wandb.log({"edge_f1score": edge_avg_f1, 'epoch': epoch})
     wandb.log({"edge_precision": edge_avg_precision, 'epoch': epoch})
     wandb.log({"edge_recall": edge_avg_recall, 'epoch': epoch})
+    
+    wandb.log({"edge_accuracy_top3": edge_avg_acc_top3, 'epoch': epoch})
+    wandb.log({"edge_f1score_top3": edge_avg_f1_top3, 'epoch': epoch})
+    wandb.log({"edge_precision_top3": edge_avg_precision_top3, 'epoch': epoch})
+    wandb.log({"edge_recall_top3": edge_avg_recall_top3, 'epoch': epoch})
+
 
 
     
