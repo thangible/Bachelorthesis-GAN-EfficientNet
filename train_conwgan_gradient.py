@@ -105,8 +105,8 @@ def train(train_dataloader,
 
             # train with fake data
             disc_fake, aux_output = DISCRIMINATOR(fake_data)
-            aux_errD_fake = aux_criterion(aux_output, fake_label)
-            errD_fake = aux_errD_fake.mean()
+            # aux_errD_fake = aux_criterion(aux_output, fake_label)
+            # errD_fake = aux_errD_fake.mean()
             disc_fake = disc_fake.mean()
 
             #showMemoryUsage(0)
@@ -120,9 +120,9 @@ def train(train_dataloader,
 
             # final disc cost
             disc_cost = torch.abs(disc_fake - disc_real) + gradient_penalty
-            disc_acgan = errD_real + errD_fake
+            disc_acgan = errD_real #+ errD_fake
             (disc_cost + ACGAN_SCALE*disc_acgan).backward()
-            w_dist = torch.abs(disc_fake  - disc_real)
+            w_dist = disc_fake  - disc_real
             optimizer_d.step()
             #------------------VISUALIZATION----------
             if i == CRITIC_ITERS-1:
