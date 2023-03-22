@@ -60,7 +60,7 @@ def train(train_dataloader,
             p.requires_grad_(False)  # freeze D
         gen_cost = None
         for i in range(GENER_ITERS):
-            labels = torch.Tensor(np.random.choice(edge_labels, size = batch_size))
+            labels = torch.tensor(np.random.choice(edge_labels, size = batch_size))
             GENERATOR.zero_grad()
             f_labels, noise = get_noise(device = device, num_classes = num_classes, labels=labels, batch_size=batch_size, latent_size = latent_size)
             noise.requires_grad_(True)
@@ -78,7 +78,7 @@ def train(train_dataloader,
         for i in range(CRITIC_ITERS):
             DISCRIMINATOR.zero_grad()
             # gen fake data and load real data
-            labels = torch.Tensor(np.random.choice(edge_labels, size = batch_size))
+            labels = torch.tensor(np.random.choice(edge_labels, size = batch_size))
             
             fake_label, noise = get_noise(device = device, num_classes = num_classes, labels = labels, batch_size=batch_size, latent_size = latent_size)
             with torch.no_grad():
