@@ -2,10 +2,10 @@
 import numpy as np
 import torch
 import torchvision
-from older_version.conwgan_gradient import *
+from model.conwgan_gradient import *
 from torch.utils.data import DataLoader
 from classification_dataset import ClassificationDataset
-from older_version.conwgan_utils_gradient import *
+from model.conwgan_utils_gradient import *
 import wandb
 from tqdm import tqdm #te quiero demasio. taqadum
 from config.parser_config import config_parser
