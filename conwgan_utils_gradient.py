@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 import torchvision
-from conwgan_gradient import *
+from model.conwgan_gradient import *
 
 def weights_init(m):
     if isinstance(m, MyConvo2d): 
