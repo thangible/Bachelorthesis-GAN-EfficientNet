@@ -2,10 +2,10 @@
 import numpy as np
 import torch
 import torchvision
-from older_version.conwgan import *
+from older_version.conwgan_gradient import *
 from torch.utils.data import DataLoader
 from classification_dataset import ClassificationDataset
-from older_version.conwgan_utils import *
+from older_version.conwgan_utils_gradient import *
 import wandb
 from tqdm import tqdm #te quiero demasio. taqadum
 from config.parser_config import config_parser
@@ -60,8 +60,9 @@ def train(train_dataloader,
             p.requires_grad_(False)  # freeze D
         gen_cost = None
         for i in range(GENER_ITERS):
+            labels = torch.Tensor(np.random.choice(edge_labels, size = batch_size))
             GENERATOR.zero_grad()
-            f_labels, noise = get_noise(device = device, num_classes = num_classes, batch_size=batch_size, latent_size = latent_size)
+            f_labels, noise = get_noise(device = device, num_classes = num_classes, labels=labels, batch_size=batch_size, latent_size = latent_size)
             noise.requires_grad_(True)
             fake_data = GENERATOR(noise)
             gen_cost, gen_aux_output = DISCRIMINATOR(fake_data)
@@ -77,7 +78,9 @@ def train(train_dataloader,
         for i in range(CRITIC_ITERS):
             DISCRIMINATOR.zero_grad()
             # gen fake data and load real data
-            _, noise = get_noise(device = device, num_classes = num_classes, batch_size=batch_size)
+            labels = torch.Tensor(np.random.choice(edge_labels, size = batch_size))
+            
+            fake_label, noise = get_noise(device = device, num_classes = num_classes, labels = labels, batch_size=batch_size, latent_size = latent_size)
             with torch.no_grad():
                 noisev = noise  # totally freeze G, training D
             fake_data = GENERATOR(noisev).detach()
@@ -102,8 +105,8 @@ def train(train_dataloader,
 
             # train with fake data
             disc_fake, aux_output = DISCRIMINATOR(fake_data)
-            #aux_errD_fake = aux_criterion(aux_output, fake_label)
-            #errD_fake = aux_errD_fake.mean()
+            aux_errD_fake = aux_criterion(aux_output, fake_label)
+            errD_fake = aux_errD_fake.mean()
             disc_fake = disc_fake.mean()
 
             #showMemoryUsage(0)
@@ -117,7 +120,7 @@ def train(train_dataloader,
 
             # final disc cost
             disc_cost = torch.abs(disc_fake - disc_real) + gradient_penalty
-            disc_acgan = errD_real #+ errD_fake
+            disc_acgan = errD_real + errD_fake
             (disc_cost + ACGAN_SCALE*disc_acgan).backward()
             w_dist = torch.abs(disc_fake  - disc_real)
             optimizer_d.step()
@@ -168,9 +171,9 @@ def train(train_dataloader,
         'optimizer_state_dict': optimizer_g.state_dict()}, g_path)
     
     
-    torch.save({
-        'model_state_dict': DISCRIMINATOR.state_dict(),
-        'optimizer_state_dict': optimizer_d.state_dict()}, d_path)
+    # torch.save({
+    #     'model_state_dict': DISCRIMINATOR.state_dict(),
+    #     'optimizer_state_dict': optimizer_d.state_dict()}, d_path)
     
     torch.save(GENERATOR, g_path)
     torch.save(DISCRIMINATOR, d_path)
