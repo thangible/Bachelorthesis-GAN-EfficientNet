@@ -44,14 +44,14 @@ def main(
     #LOADING DATA
     full_dataset = ClassificationDataset(
         one_hot = False,
-        augmentation= augment,
+        augmentation= 'no augment',
         npz_path= npz_path,
         image_path= image_path,
         label_path= label_path,
         size = img_size)
     
 
-    # full_dataset._extend(gan_dir=gan_dir, gan_info=gan_info)
+    full_dataset._extend(gan_dir=gan_dir, gan_info=gan_info)
 
     get_cat_from_label = full_dataset._get_cat_from_label
     num_classes = full_dataset._get_num_classes()
