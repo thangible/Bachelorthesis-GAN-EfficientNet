@@ -44,7 +44,7 @@ def main(
     #LOADING DATA
     full_dataset = ClassificationDataset(
         one_hot = False,
-        augmentation= 'no augment',
+        augmentation= None,
         npz_path= npz_path,
         image_path= image_path,
         label_path= label_path,
