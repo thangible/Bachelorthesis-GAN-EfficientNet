@@ -141,13 +141,13 @@ def main(
             get_cat_from_label = get_cat_from_label)
 
     # torch.save(MODEL.state_dict(), SAVE_PATH)
-    torch.save({
-            'trained_epochs': trained_epochs + epochs,
-            'model_state_dict': MODEL.state_dict(),
-            'optimizer_state_dict': OPTIM.state_dict(),
-            'loss': LOSS,
-            'name': run_name
-            }, SAVE_PATH)
+    # torch.save({
+    #         'trained_epochs': trained_epochs + epochs,
+    #         'model_state_dict': MODEL.state_dict(),
+    #         'optimizer_state_dict': OPTIM.state_dict(),
+    #         'loss': LOSS,
+    #         'name': run_name
+    #         }, SAVE_PATH)
     
     
 def valid_classifier(model, num_classes, loader_test, device, is_last_epoch_flag, epoch, get_cat_from_label):

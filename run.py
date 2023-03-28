@@ -35,12 +35,35 @@ if __name__ == "__main__":
     GridDropout = A.GridDropout(ratio = 0.6, random_offset = True, p=1)
     Cutout = A.CoarseDropout(max_holes=1, p =1, max_height=50, max_width=50)
     
+    def Rand_HP(n):
+        def RandAugment(image, n = n, m = 10):
+        # Define a set of possible image transformations
+            transforms_list = [Rotation, 
+                            Flip,
+                            MotionBlur,
+                            Sharpen,
+                            CenterCrop,
+                            GaussNoise,
+                            GridDropout
+                            ]
+            # Apply a random sequence of n transformations with magnitude m
+            aug = A.Compose([transforms_list[i] for i in np.random.choice(len(transforms_list), n)])
+            aug_image = aug(image = image.astype(np.uint8))['image']
+            output = {}
+            output['image'] = aug_image
+            #FOR VISUALISATION
+            output['augs'] = [str(x).partition('(')[0] for x in aug]
+            return output
+        return RandAugment
+
+    
     
     aug_dict = {}
-    aug_dict['CenterCrop'] = CenterCrop
-    aug_dict['CenterCrop_2'] = CenterCrop_2
-    aug_dict['Rotation'] = Rotation
-    aug_dict['Flip'] = Flip
+    
+    # aug_dict['CenterCrop'] = CenterCrop
+    # aug_dict['CenterCrop_2'] = CenterCrop_2
+    # aug_dict['Rotation'] = Rotation
+    # aug_dict['Flip'] = Flip
     aug_dict['CLAHE'] = CLAHE
     aug_dict['Sharpen'] = Sharpen
     aug_dict['ChannelShuffle'] = ChannelShuffle
@@ -48,14 +71,15 @@ if __name__ == "__main__":
     aug_dict['ToGray'] = ToGray
     aug_dict['ToSepia'] = ToSepia
     
-    aug_dict['MotionBlur'] = A.MotionBlur(blur_limit = 11, p = 1.0)
-    aug_dict['Perspective'] = A.Perspective(scale = 0.3, p = 1.0)
+    # aug_dict['MotionBlur'] = A.MotionBlur(blur_limit = 11, p = 1.0)
+    # aug_dict['Perspective'] = A.Perspective(scale = 0.3, p = 1.0)
     aug_dict['Solarize'] = A.Solarize(threshold = 192, p = 1)
+    aug_dict['RandAugment'] = Rand_HP(2)
     
 
     for run_name in aug_dict.keys():
         augmentation = aug_dict[run_name]
-        classifier.single_run(args, given_augment = augmentation, run_name = run_name, project_name = 'OFFICIAL GOOD CLASSIFIER')
+        classifier.single_run(args, given_augment = augmentation, run_name = run_name, project_name = 'TOO GOOD CLASSIFIER')
 
     # for run_name in HP:
     #     augmentation = HP[run_name]
