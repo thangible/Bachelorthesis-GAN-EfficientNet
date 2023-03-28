@@ -64,15 +64,18 @@ if __name__ == "__main__":
     # aug_dict['CenterCrop_2'] = CenterCrop_2
     # aug_dict['Rotation'] = Rotation
     # aug_dict['Flip'] = Flip
+    # aug_dict['MotionBlur'] = A.MotionBlur(blur_limit = 11, p = 1.0)
+    # aug_dict['Perspective'] = A.Perspective(scale = 0.3, p = 1.0)
+    
+    #1
     aug_dict['CLAHE'] = CLAHE
     aug_dict['Sharpen'] = Sharpen
     aug_dict['ChannelShuffle'] = ChannelShuffle
+    #2
     aug_dict['ColorJitter'] = ColorJitter
     aug_dict['ToGray'] = ToGray
     aug_dict['ToSepia'] = ToSepia
-    
-    # aug_dict['MotionBlur'] = A.MotionBlur(blur_limit = 11, p = 1.0)
-    # aug_dict['Perspective'] = A.Perspective(scale = 0.3, p = 1.0)
+    #3
     aug_dict['Solarize'] = A.Solarize(threshold = 192, p = 1)
     aug_dict['RandAugment'] = Rand_HP(2)
     
