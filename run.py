@@ -20,6 +20,7 @@ if __name__ == "__main__":
     Rotation = A.Rotate(p=1.0)
     Flip = A.Flip(p=1.0)
     ##MOTION BLUR
+    MotionBlur = A.MotionBlur(blur_limit = 11, p = 1.0)
     #COLOR AUGMENTATION
     CLAHE = A.CLAHE(clip_limit = 16, tile_grid_size=(4, 4), p=1.0)
     Sharpen = A.Sharpen(alpha= (0.6,0.8), lightness = (0.6,1.0), p=1.0)
