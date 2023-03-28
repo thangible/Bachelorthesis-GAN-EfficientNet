@@ -20,8 +20,8 @@ def main(
     run_name: str,
     root_path: str = ('.'),
     log_path: str = "./data/classification/logs",
-    gan_dir: str = "./gan_generated_data/all_fake",
-    gan_info: str = "./gan_generated_data/gan_info.csv",
+    gan_dir: str = "./gan_generated_data/all_fake_wasserstein_gradient",
+    gan_info: str = "./gan_generated_data/wagan_gradient_info.csv",
     npz_path: str = None,
     image_path: str =  None,
     label_path: str = None,
@@ -44,14 +44,14 @@ def main(
     #LOADING DATA
     full_dataset = ClassificationDataset(
         one_hot = False,
-        augmentation= augment,
+        augmentation= None,
         npz_path= npz_path,
         image_path= image_path,
         label_path= label_path,
         size = img_size)
     
 
-    # full_dataset._extend(gan_dir=gan_dir, gan_info=gan_info)
+    full_dataset._extend(gan_dir=gan_dir, gan_info=gan_info)
 
     get_cat_from_label = full_dataset._get_cat_from_label
     num_classes = full_dataset._get_num_classes()
